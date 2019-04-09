@@ -1,4 +1,4 @@
-package goche
+package hache
 
 import "net/http"
 

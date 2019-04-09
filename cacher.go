@@ -1,4 +1,4 @@
-package goche
+package hache
 
 // CacheInteractor represent the Cache implementation contract
 type CacheInteractor interface {
