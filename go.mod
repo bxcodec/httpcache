@@ -1,1 +1,1 @@
-module github.com/bxcodec/goche
+module github.com/bxcodec/hache
