@@ -10,14 +10,14 @@ type RoundTrip struct {
 
 // RoundTrip the implementation of http.RoundTripper
 func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-
+	panic("TODO: (bxcodec)")
 	return
 }
 
 func validateCacheHeader() {
-
+	panic("TODO: (bxcodec)")
 }
 
 func validateHTTPMethod() {
-
+	panic("TODO: (bxcodec)")
 }

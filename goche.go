@@ -18,5 +18,6 @@ func New(client *http.Client, cacheInteractor CacheInteractor) (err error) {
 // NewWithInmemoryCache will create a complete cache-support of HTTP client with using inmemory cache.
 // If the duration not set, the cache will use LFU algorithm
 func NewWithInmemoryCache(client *http.Client, duration ...time.Duration) (err error) {
+	panic("TODO: (bxcodec)")
 	return
 }
