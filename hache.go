@@ -9,6 +9,10 @@ import (
 var (
 	// ErrInvalidCachedResponse will throw if the cached response is invalid
 	ErrInvalidCachedResponse = errors.New("Cached Response is Invalid")
+	// ErrFailedToSaveToCache will throw if the item can't be saved to cache
+	ErrFailedToSaveToCache = errors.New("Failed to save item")
+	// ErrCacheMissed will throw if an item can't be retrieved (due to invalid, or missing)
+	ErrCacheMissed = errors.New("Cache is missing")
 )
 
 // New ...
