@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"time"
 )
 
@@ -53,8 +54,13 @@ func storeRespToCache(cacheInteractor CacheInteractor, req *http.Request, resp *
 	}
 
 	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	cachedResp.DumpedResponse = bodyBytes
-	err = cacheInteractor.Set(getCacheKey(req), cachedResp)
+	cachedResp.DumpedBody = bodyBytes
+	dumpedResponse, err := httputil.DumpResponse(resp, true)
+	if err != nil {
+		return
+	}
+	cachedResp.DumpedResponse = dumpedResponse
+	err = cacheInteractor.Set(getCacheKey(req), cachedResp.DumpedResponse)
 	return
 }
 
@@ -64,20 +70,16 @@ func getCachedResponse(cacheInteractor CacheInteractor, req *http.Request) (resp
 		return
 	}
 
-	cachedResp, ok := item.(CachedResponse)
+	cachedResp, ok := item.([]byte)
 	if !ok {
 		return
 	}
-	if err = cachedResp.Validate(); err != nil {
-		return
-	}
 
-	cachedResponse := bytes.NewBuffer(cachedResp.DumpedResponse)
+	cachedResponse := bytes.NewBuffer(cachedResp)
 	resp, err = http.ReadResponse(bufio.NewReader(cachedResponse), req)
 	if err != nil {
 		return
 	}
-	resp.StatusCode = cachedResp.StatusCode
 	return
 }
 

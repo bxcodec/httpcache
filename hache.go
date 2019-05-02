@@ -35,7 +35,8 @@ func NewWithInmemoryCache(client *http.Client, duration ...time.Duration) (err e
 // CachedResponse represent the cacher struct item
 type CachedResponse struct {
 	StatusCode     int       `json:"statusCode"`
-	DumpedResponse []byte    `json:"body"`
+	DumpedResponse []byte    `json:"response"`
+	DumpedBody     []byte    `json:"body"`
 	RequestURI     string    `json:"requestUri"`
 	RequestMethod  string    `json:"requestMethod"`
 	CachedTime     time.Time `json:"cachedTime"`
