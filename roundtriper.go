@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
-	"time"
 	"strings"
+	"time"
 )
 
 // Headers
@@ -22,6 +22,7 @@ const (
 	HeaderContentLength       = "Content-Length"
 	HeaderContentType         = "Content-Type"
 	HeaderCookie              = "Cookie"
+	HeaderCacheControl        = "Cache-Control"
 	HeaderSetCookie           = "Set-Cookie"
 	HeaderIfModifiedSince     = "If-Modified-Since"
 	HeaderLastModified        = "Last-Modified"
@@ -60,11 +61,10 @@ const (
 	HeaderXCSRFToken              = "X-CSRF-Token"
 )
 
-var(
+var (
 	// CachedAuthorizedRequest used for determine that a request with Authorization header should be cached or not
 	CachedAuthorizedRequest = false // TODO(bxcodec): Need to revised about this feature
 )
-
 
 // RoundTrip custom plugable' struct of implementation of the http.RoundTripper
 type RoundTrip struct {
@@ -74,10 +74,12 @@ type RoundTrip struct {
 
 // RoundTrip the implementation of http.RoundTripper
 func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-	resp, err = getCachedResponse(r.CacheInteractor, req)
-	if resp != nil && err == nil {
-		buildTheCachedResponseHeader(resp)
-		return
+	if allowedFromCache(req) {
+		resp, err = getCachedResponse(r.CacheInteractor, req)
+		if resp != nil && err == nil {
+			buildTheCachedResponseHeader(resp)
+			return
+		}
 	}
 
 	resp, err = r.DefaultRoundTripper.RoundTrip(req)
@@ -85,9 +87,10 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 		return
 	}
 
-	if !allowedToCache(req,resp) {
-		return  
+	if !allowedToCache(req, resp) {
+		return
 	}
+
 	storeRespToCache(r.CacheInteractor, req, resp)
 	return
 }
@@ -112,7 +115,7 @@ func storeRespToCache(cacheInteractor CacheInteractor, req *http.Request, resp *
 		return
 	}
 	cachedResp.DumpedResponse = dumpedResponse
-	err = cacheInteractor.Set(getCacheKey(req), cachedResp.DumpedResponse)
+	err = cacheInteractor.Set(getCacheKey(req), cachedResp)
 	return
 }
 
@@ -122,12 +125,12 @@ func getCachedResponse(cacheInteractor CacheInteractor, req *http.Request) (resp
 		return
 	}
 
-	cachedResp, ok := item.([]byte)
+	cachedResp, ok := item.(CachedResponse)
 	if !ok {
 		return
 	}
 
-	cachedResponse := bytes.NewBuffer(cachedResp)
+	cachedResponse := bytes.NewBuffer(cachedResp.DumpedResponse)
 	resp, err = http.ReadResponse(bufio.NewReader(cachedResponse), req)
 	if err != nil {
 		return
@@ -137,7 +140,9 @@ func getCachedResponse(cacheInteractor CacheInteractor, req *http.Request) (resp
 
 func getCacheKey(req *http.Request) (key string) {
 	key = fmt.Sprintf("%s %s", req.Method, req.RequestURI)
-	if CachedAuthorizedRequest {
+	if (CachedAuthorizedRequest ||
+		(strings.ToLower(req.Header.Get(HeaderCacheControl)) == "private")) &&
+		req.Header.Get(HeaderAuthorization) != "" {
 		key = fmt.Sprintf("%s %s", key, req.Header.Get(HeaderAuthorization))
 	}
 	return
@@ -154,18 +159,35 @@ func allowedToCache(req *http.Request, resp *http.Response) (ok bool) {
 	// https://tools.ietf.org/html/rfc7234#section-3.2
 	// Unless configured by user to cache request by authorization
 	if ok = !CachedAuthorizedRequest && req.Header.Get(HeaderAuthorization) != ""; !ok {
-		return 
+		return
 	}
 
 	// check if the request method allowed to be cached
 	if ok = !requestMethodValid(req); !ok {
 		return
 	}
-	
-	panic("TODO: (bxcodec) check the header based on RFC 7234")
+
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#Preventing_caching
+	if ok = strings.ToLower(req.Header.Get(HeaderCacheControl)) != "no-store"; !ok {
+		return
+	}
+	if ok = strings.ToLower(resp.Header.Get(HeaderCacheControl)) != "no-store"; !ok {
+		return
+	}
+
+	// Only cache the response of with code 200
+	if ok = resp.StatusCode == http.StatusOK; !ok {
+		return
+	}
+
 	return
 }
 
+func allowedFromCache(req *http.Request) (ok bool) {
+	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#Cacheability
+	return strings.ToLower(req.Header.Get(HeaderCacheControl)) != "no-cache"
+}
+
 func requestMethodValid(req *http.Request) bool {
-	 return req.Method == http.MethodGet || strings.ToLower(req.Method) == "get" 
+	return req.Method == http.MethodGet || strings.ToLower(req.Method) == "get"
 }
