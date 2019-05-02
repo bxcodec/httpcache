@@ -8,7 +8,63 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"time"
+	"strings"
 )
+
+// Headers
+const (
+	HeaderAccept              = "Accept"
+	HeaderAcceptEncoding      = "Accept-Encoding"
+	HeaderAllow               = "Allow"
+	HeaderAuthorization       = "Authorization"
+	HeaderContentDisposition  = "Content-Disposition"
+	HeaderContentEncoding     = "Content-Encoding"
+	HeaderContentLength       = "Content-Length"
+	HeaderContentType         = "Content-Type"
+	HeaderCookie              = "Cookie"
+	HeaderSetCookie           = "Set-Cookie"
+	HeaderIfModifiedSince     = "If-Modified-Since"
+	HeaderLastModified        = "Last-Modified"
+	HeaderLocation            = "Location"
+	HeaderUpgrade             = "Upgrade"
+	HeaderVary                = "Vary"
+	HeaderWWWAuthenticate     = "WWW-Authenticate"
+	HeaderXForwardedFor       = "X-Forwarded-For"
+	HeaderXForwardedProto     = "X-Forwarded-Proto"
+	HeaderXForwardedProtocol  = "X-Forwarded-Protocol"
+	HeaderXForwardedSsl       = "X-Forwarded-Ssl"
+	HeaderXUrlScheme          = "X-Url-Scheme"
+	HeaderXHTTPMethodOverride = "X-HTTP-Method-Override"
+	HeaderXRealIP             = "X-Real-IP"
+	HeaderXRequestID          = "X-Request-ID"
+	HeaderXRequestedWith      = "X-Requested-With"
+	HeaderServer              = "Server"
+	HeaderOrigin              = "Origin"
+
+	// Access control
+	HeaderAccessControlRequestMethod    = "Access-Control-Request-Method"
+	HeaderAccessControlRequestHeaders   = "Access-Control-Request-Headers"
+	HeaderAccessControlAllowOrigin      = "Access-Control-Allow-Origin"
+	HeaderAccessControlAllowMethods     = "Access-Control-Allow-Methods"
+	HeaderAccessControlAllowHeaders     = "Access-Control-Allow-Headers"
+	HeaderAccessControlAllowCredentials = "Access-Control-Allow-Credentials"
+	HeaderAccessControlExposeHeaders    = "Access-Control-Expose-Headers"
+	HeaderAccessControlMaxAge           = "Access-Control-Max-Age"
+
+	// Security
+	HeaderStrictTransportSecurity = "Strict-Transport-Security"
+	HeaderXContentTypeOptions     = "X-Content-Type-Options"
+	HeaderXXSSProtection          = "X-XSS-Protection"
+	HeaderXFrameOptions           = "X-Frame-Options"
+	HeaderContentSecurityPolicy   = "Content-Security-Policy"
+	HeaderXCSRFToken              = "X-CSRF-Token"
+)
+
+var(
+	// CachedAuthorizedRequest used for determine that a request with Authorization header should be cached or not
+	CachedAuthorizedRequest = false // TODO(bxcodec): Need to revised about this feature
+)
+
 
 // RoundTrip custom plugable' struct of implementation of the http.RoundTripper
 type RoundTrip struct {
@@ -18,14 +74,6 @@ type RoundTrip struct {
 
 // RoundTrip the implementation of http.RoundTripper
 func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-	if !isTheHeaderAllowCachedResponse(req) {
-		return r.DefaultRoundTripper.RoundTrip(req)
-	}
-
-	if !isHTTPMethodValid(req) {
-		return r.DefaultRoundTripper.RoundTrip(req)
-	}
-
 	resp, err = getCachedResponse(r.CacheInteractor, req)
 	if resp != nil && err == nil {
 		buildTheCachedResponseHeader(resp)
@@ -35,6 +83,10 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 	resp, err = r.DefaultRoundTripper.RoundTrip(req)
 	if err != nil {
 		return
+	}
+
+	if !allowedToCache(req,resp) {
+		return  
 	}
 	storeRespToCache(r.CacheInteractor, req, resp)
 	return
@@ -85,6 +137,9 @@ func getCachedResponse(cacheInteractor CacheInteractor, req *http.Request) (resp
 
 func getCacheKey(req *http.Request) (key string) {
 	key = fmt.Sprintf("%s %s", req.Method, req.RequestURI)
+	if CachedAuthorizedRequest {
+		key = fmt.Sprintf("%s %s", key, req.Header.Get(HeaderAuthorization))
+	}
 	return
 }
 
@@ -94,10 +149,23 @@ func buildTheCachedResponseHeader(resp *http.Response) {
 }
 
 // check the header if the response will cached or not
-func isTheHeaderAllowCachedResponse(req *http.Request) bool {
+func allowedToCache(req *http.Request, resp *http.Response) (ok bool) {
+	// A request with authorization header must not be cached
+	// https://tools.ietf.org/html/rfc7234#section-3.2
+	// Unless configured by user to cache request by authorization
+	if ok = !CachedAuthorizedRequest && req.Header.Get(HeaderAuthorization) != ""; !ok {
+		return 
+	}
+
+	// check if the request method allowed to be cached
+	if ok = !requestMethodValid(req); !ok {
+		return
+	}
+	
 	panic("TODO: (bxcodec) check the header based on RFC 7234")
+	return
 }
 
-func isHTTPMethodValid(req *http.Request) bool {
-	panic("TODO: (bxcodec) check the method verb based on RFC 7234")
+func requestMethodValid(req *http.Request) bool {
+	 return req.Method == http.MethodGet || strings.ToLower(req.Method) == "get" 
 }
