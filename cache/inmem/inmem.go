@@ -6,27 +6,29 @@ import (
 )
 
 type inmemCache struct {
-	c memcache.Cache
+	cache memcache.Cache
 }
 
 // NewCache ...
 func NewCache(c memcache.Cache) cache.Interactor {
 	return &inmemCache{
-		c: c,
+		cache: c,
 	}
 }
 
 func (i *inmemCache) Set(key string, value cache.CachedResponse) (err error) {
-	panic("TODO")
-	return
+	return i.cache.Set(key, value)
 }
 
 func (i *inmemCache) Get(key string) (res cache.CachedResponse, err error) {
-	panic("TODO")
+	item, err := i.cache.Get(key)
+	if err != nil {
+		return
+	}
+	res = item.(cache.CachedResponse)
 	return
 }
 
 func (i *inmemCache) Delete(key string) (err error) {
-	panic("TODO")
-	return
+	return i.cache.Delete(key)
 }
