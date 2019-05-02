@@ -1,22 +1,22 @@
 package hache
 
 import (
-	"errors"
 	"net/http"
 	"time"
-)
 
-var (
-	// ErrInvalidCachedResponse will throw if the cached response is invalid
-	ErrInvalidCachedResponse = errors.New("Cached Response is Invalid")
-	// ErrFailedToSaveToCache will throw if the item can't be saved to cache
-	ErrFailedToSaveToCache = errors.New("Failed to save item")
-	// ErrCacheMissed will throw if an item can't be retrieved (due to invalid, or missing)
-	ErrCacheMissed = errors.New("Cache is missing")
+	"github.com/bxcodec/gotcha"
+	inmemcache "github.com/bxcodec/gotcha/cache"
+	"github.com/bxcodec/hache/cache"
+	"github.com/bxcodec/hache/cache/inmem"
 )
 
 // New ...
-func New(client *http.Client, cacheInteractor CacheInteractor) (err error) {
+func New(client *http.Client, cacheInteractor cache.Interactor) (err error) {
+	newClient(client, cacheInteractor)
+	return
+}
+
+func newClient(client *http.Client, cacheInteractor cache.Interactor) (err error) {
 	roundtrip := &RoundTrip{
 		DefaultRoundTripper: client.Transport,
 		CacheInteractor:     cacheInteractor,
@@ -28,41 +28,15 @@ func New(client *http.Client, cacheInteractor CacheInteractor) (err error) {
 // NewWithInmemoryCache will create a complete cache-support of HTTP client with using inmemory cache.
 // If the duration not set, the cache will use LFU algorithm
 func NewWithInmemoryCache(client *http.Client, duration ...time.Duration) (err error) {
-	panic("TODO: (bxcodec)")
-	return
-}
-
-// CachedResponse represent the cacher struct item
-type CachedResponse struct {
-	StatusCode     int       `json:"statusCode"`
-	DumpedResponse []byte    `json:"response"`
-	DumpedBody     []byte    `json:"body"`
-	RequestURI     string    `json:"requestUri"`
-	RequestMethod  string    `json:"requestMethod"`
-	CachedTime     time.Time `json:"cachedTime"`
-}
-
-// Validate will validate the cached response
-func (c *CachedResponse) Validate() (err error) {
-	if c.StatusCode == 0 {
-		return ErrInvalidCachedResponse
+	var expiryTime time.Duration
+	if len(duration) > 0 {
+		expiryTime = duration[0]
 	}
+	c := gotcha.New(
+		gotcha.NewOption().SetAlgorithm(inmemcache.LRUAlgorithm).
+			SetExpiryTime(expiryTime).SetMaxSizeItem(100),
+	)
 
-	if c.RequestMethod == "" {
-		return ErrInvalidCachedResponse
-	}
-
-	if c.RequestURI == "" {
-		return ErrInvalidCachedResponse
-	}
-
-	if len(c.DumpedResponse) == 0 {
-		return ErrInvalidCachedResponse
-	}
-
-	if c.CachedTime.IsZero() {
-		return ErrInvalidCachedResponse
-	}
-
+	newClient(client, inmem.NewCache(c))
 	return
 }

@@ -9,6 +9,8 @@ import (
 	"net/http/httputil"
 	"strings"
 	"time"
+
+	"github.com/bxcodec/hache/cache"
 )
 
 // Headers
@@ -69,7 +71,7 @@ var (
 // RoundTrip custom plugable' struct of implementation of the http.RoundTripper
 type RoundTrip struct {
 	DefaultRoundTripper http.RoundTripper
-	CacheInteractor     CacheInteractor
+	CacheInteractor     cache.Interactor
 }
 
 // RoundTrip the implementation of http.RoundTripper
@@ -95,8 +97,8 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 	return
 }
 
-func storeRespToCache(cacheInteractor CacheInteractor, req *http.Request, resp *http.Response) (err error) {
-	cachedResp := CachedResponse{
+func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp *http.Response) (err error) {
+	cachedResp := cache.CachedResponse{
 		StatusCode:    resp.StatusCode,
 		RequestMethod: req.Method,
 		RequestURI:    req.RequestURI,
@@ -119,14 +121,9 @@ func storeRespToCache(cacheInteractor CacheInteractor, req *http.Request, resp *
 	return
 }
 
-func getCachedResponse(cacheInteractor CacheInteractor, req *http.Request) (resp *http.Response, err error) {
-	item, err := cacheInteractor.Get(getCacheKey(req))
+func getCachedResponse(cacheInteractor cache.Interactor, req *http.Request) (resp *http.Response, err error) {
+	cachedResp, err := cacheInteractor.Get(getCacheKey(req))
 	if err != nil {
-		return
-	}
-
-	cachedResp, ok := item.(CachedResponse)
-	if !ok {
 		return
 	}
 
