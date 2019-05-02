@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -106,13 +105,13 @@ func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp 
 		CachedTime:    time.Now(),
 	}
 
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
+	// bodyBytes, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return
+	// }
 
-	resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	cachedResp.DumpedBody = bodyBytes
+	// resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	// cachedResp.DumpedBody = bodyBytes
 	dumpedResponse, err := httputil.DumpResponse(resp, true)
 	if err != nil {
 		return
