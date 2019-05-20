@@ -14,52 +14,8 @@ import (
 
 // Headers
 const (
-	HeaderAccept              = "Accept"
-	HeaderAcceptEncoding      = "Accept-Encoding"
-	HeaderAllow               = "Allow"
-	HeaderAuthorization       = "Authorization"
-	HeaderContentDisposition  = "Content-Disposition"
-	HeaderContentEncoding     = "Content-Encoding"
-	HeaderContentLength       = "Content-Length"
-	HeaderContentType         = "Content-Type"
-	HeaderCookie              = "Cookie"
-	HeaderCacheControl        = "Cache-Control"
-	HeaderSetCookie           = "Set-Cookie"
-	HeaderIfModifiedSince     = "If-Modified-Since"
-	HeaderLastModified        = "Last-Modified"
-	HeaderLocation            = "Location"
-	HeaderUpgrade             = "Upgrade"
-	HeaderVary                = "Vary"
-	HeaderWWWAuthenticate     = "WWW-Authenticate"
-	HeaderXForwardedFor       = "X-Forwarded-For"
-	HeaderXForwardedProto     = "X-Forwarded-Proto"
-	HeaderXForwardedProtocol  = "X-Forwarded-Protocol"
-	HeaderXForwardedSsl       = "X-Forwarded-Ssl"
-	HeaderXUrlScheme          = "X-Url-Scheme"
-	HeaderXHTTPMethodOverride = "X-HTTP-Method-Override"
-	HeaderXRealIP             = "X-Real-IP"
-	HeaderXRequestID          = "X-Request-ID"
-	HeaderXRequestedWith      = "X-Requested-With"
-	HeaderServer              = "Server"
-	HeaderOrigin              = "Origin"
-
-	// Access control
-	HeaderAccessControlRequestMethod    = "Access-Control-Request-Method"
-	HeaderAccessControlRequestHeaders   = "Access-Control-Request-Headers"
-	HeaderAccessControlAllowOrigin      = "Access-Control-Allow-Origin"
-	HeaderAccessControlAllowMethods     = "Access-Control-Allow-Methods"
-	HeaderAccessControlAllowHeaders     = "Access-Control-Allow-Headers"
-	HeaderAccessControlAllowCredentials = "Access-Control-Allow-Credentials"
-	HeaderAccessControlExposeHeaders    = "Access-Control-Expose-Headers"
-	HeaderAccessControlMaxAge           = "Access-Control-Max-Age"
-
-	// Security
-	HeaderStrictTransportSecurity = "Strict-Transport-Security"
-	HeaderXContentTypeOptions     = "X-Content-Type-Options"
-	HeaderXXSSProtection          = "X-XSS-Protection"
-	HeaderXFrameOptions           = "X-Frame-Options"
-	HeaderContentSecurityPolicy   = "Content-Security-Policy"
-	HeaderXCSRFToken              = "X-CSRF-Token"
+	HeaderAuthorization = "Authorization"
+	HeaderCacheControl  = "Cache-Control"
 )
 
 var (
@@ -71,6 +27,14 @@ var (
 type RoundTrip struct {
 	DefaultRoundTripper http.RoundTripper
 	CacheInteractor     cache.Interactor
+}
+
+// NewRoundtrip will create an implementations of cache http roundtripper
+func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.Interactor) http.RoundTripper {
+	return &RoundTrip{
+		DefaultRoundTripper: defaultRoundTripper,
+		CacheInteractor:     cacheActor,
+	}
 }
 
 // RoundTrip the implementation of http.RoundTripper
@@ -99,7 +63,6 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 
 func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp *http.Response) (err error) {
 	cachedResp := cache.CachedResponse{
-		StatusCode:    resp.StatusCode,
 		RequestMethod: req.Method,
 		RequestURI:    req.RequestURI,
 		CachedTime:    time.Now(),

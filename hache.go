@@ -19,13 +19,8 @@ func New(client *http.Client, cacheInteractor cache.Interactor) (err error) {
 func newClient(client *http.Client, cacheInteractor cache.Interactor) (err error) {
 	if client.Transport == nil {
 		client.Transport = http.DefaultTransport
-		// return errors.New("HTTP Client is invalid")
 	}
-	roundtrip := &RoundTrip{
-		DefaultRoundTripper: client.Transport,
-		CacheInteractor:     cacheInteractor,
-	}
-	client.Transport = roundtrip
+	client.Transport = NewRoundtrip(client.Transport, cacheInteractor)
 	return
 }
 

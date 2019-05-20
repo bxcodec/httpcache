@@ -23,20 +23,16 @@ type Interactor interface {
 
 // CachedResponse represent the cacher struct item
 type CachedResponse struct {
-	StatusCode     int       `json:"statusCode"`
-	DumpedResponse []byte    `json:"response"`
-	DumpedBody     []byte    `json:"body"`
-	RequestURI     string    `json:"requestUri"`
-	RequestMethod  string    `json:"requestMethod"`
-	CachedTime     time.Time `json:"cachedTime"`
+	// StatusCode     int       `json:"statusCode"`
+	DumpedResponse []byte `json:"response"`
+	// DumpedBody     []byte    `json:"body"`
+	RequestURI    string    `json:"requestUri"`
+	RequestMethod string    `json:"requestMethod"`
+	CachedTime    time.Time `json:"cachedTime"`
 }
 
 // Validate will validate the cached response
 func (c *CachedResponse) Validate() (err error) {
-	if c.StatusCode == 0 {
-		return ErrInvalidCachedResponse
-	}
-
 	if c.RequestMethod == "" {
 		return ErrInvalidCachedResponse
 	}
