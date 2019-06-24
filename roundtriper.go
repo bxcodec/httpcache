@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"strings"
@@ -46,18 +47,21 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 			return resp, err
 		}
 	}
-
+	err = nil
 	resp, err = r.DefaultRoundTripper.RoundTrip(req)
 	if err != nil {
 		return
 	}
 
 	if !allowedToCache(req, resp) {
-		fmt.Println("MASUK PAKDE>>>>")
 		return
 	}
-	fmt.Println("Stored to cache")
-	storeRespToCache(r.CacheInteractor, req, resp)
+
+	err = storeRespToCache(r.CacheInteractor, req, resp)
+	if err != nil {
+		log.Println(err)
+	}
+
 	return
 }
 
@@ -68,13 +72,6 @@ func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp 
 		CachedTime:    time.Now(),
 	}
 
-	// bodyBytes, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	return
-	// }
-
-	// resp.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
-	// cachedResp.DumpedBody = bodyBytes
 	dumpedResponse, err := httputil.DumpResponse(resp, true)
 	if err != nil {
 		return
@@ -126,26 +123,21 @@ func allowedToCache(req *http.Request, resp *http.Response) (ok bool) {
 
 	// check if the request method allowed to be cached
 	if ok = requestMethodValid(req); !ok {
-		fmt.Println("FAILED HERE 2", ok)
 		return
 	}
 
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#Preventing_caching
 	if ok = strings.ToLower(req.Header.Get(HeaderCacheControl)) != "no-store"; !ok {
-		fmt.Println("FAILED HERE 3")
 		return
 	}
 	if ok = strings.ToLower(resp.Header.Get(HeaderCacheControl)) != "no-store"; !ok {
-		fmt.Println("FAILED HERE 4")
 		return
 	}
 
 	// Only cache the response of with code 200
 	if ok = resp.StatusCode == http.StatusOK; !ok {
-		fmt.Println("FAILED HERE 4")
 		return
 	}
-	fmt.Println("FAILED HERE ", ok)
 	return
 }
 
@@ -155,6 +147,5 @@ func allowedFromCache(req *http.Request) (ok bool) {
 }
 
 func requestMethodValid(req *http.Request) bool {
-	fmt.Println("Method >>", req.Method == http.MethodGet, strings.ToLower(req.Method) == "get")
 	return req.Method == http.MethodGet || strings.ToLower(req.Method) == "get"
 }
