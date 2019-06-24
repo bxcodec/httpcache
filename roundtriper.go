@@ -143,9 +143,10 @@ func allowedToCache(req *http.Request, resp *http.Response) (ok bool) {
 
 func allowedFromCache(req *http.Request) (ok bool) {
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#Cacheability
-	return strings.ToLower(req.Header.Get(HeaderCacheControl)) != "no-cache"
+	return !strings.Contains(strings.ToLower(req.Header.Get(HeaderCacheControl)), "no-cache") ||
+		!strings.Contains(strings.ToLower(req.Header.Get(HeaderCacheControl)), "no-store")
 }
 
 func requestMethodValid(req *http.Request) bool {
-	return req.Method == http.MethodGet || strings.ToLower(req.Method) == "get"
+	return strings.ToLower(req.Method) == "get"
 }
