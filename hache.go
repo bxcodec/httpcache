@@ -17,11 +17,10 @@ func New(client *http.Client, cacheInteractor cache.Interactor) (err error) {
 }
 
 func newClient(client *http.Client, cacheInteractor cache.Interactor) (err error) {
-	roundtrip := &RoundTrip{
-		DefaultRoundTripper: client.Transport,
-		CacheInteractor:     cacheInteractor,
+	if client.Transport == nil {
+		client.Transport = http.DefaultTransport
 	}
-	client.Transport = roundtrip
+	client.Transport = NewRoundtrip(client.Transport, cacheInteractor)
 	return
 }
 
@@ -37,6 +36,5 @@ func NewWithInmemoryCache(client *http.Client, duration ...time.Duration) (err e
 			SetExpiryTime(expiryTime).SetMaxSizeItem(100),
 	)
 
-	newClient(client, inmem.NewCache(c))
-	return
+	return newClient(client, inmem.NewCache(c))
 }
