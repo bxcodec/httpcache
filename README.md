@@ -79,8 +79,13 @@ for i:=0; i< 10; i++ {
 //TODO(bxcodec)
 
 
-## Contribution
 
+## Inspirations and Thanks
+- [pquerna/cachecontrol](github.com/pquerna/cachecontrol) for the Cache-Header Extraction
+
+
+## Contribution
 ---
 
 To contrib to this project, you can open a PR or an issue.
+

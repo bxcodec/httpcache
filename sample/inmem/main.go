@@ -28,5 +28,6 @@ func main() {
 		}
 		fmt.Printf("Response time: %vms\n", time.Since(startTime).Microseconds())
 		fmt.Println("Status Code", res.StatusCode)
+		// fmt.Println("Header", res.Header)
 	}
 }
