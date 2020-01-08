@@ -1,8 +1,8 @@
 package control
 
 import (
-	"github.com/pquerna/cachecontrol/cacheobject"
-
+	// "github.com/pquerna/cachecontrol/cacheobject"
+	cacheobject "github.com/bxcodec/hache/control/cacheheader"
 	"net/http"
 	"time"
 )

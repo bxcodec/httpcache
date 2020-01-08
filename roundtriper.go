@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/bxcodec/hache/cache"
+	cacheControl "github.com/bxcodec/hache/control/cacheheader"
 )
 
 // Headers
@@ -38,22 +39,91 @@ func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.Intera
 	}
 }
 
+func validateTheCacheControl(req *http.Request, resp *http.Response) (validationResult cacheControl.ObjectResults, err error) {
+	reqDir, err := cacheControl.ParseRequestCacheControl(req.Header.Get("Cache-Control"))
+	if err != nil {
+		return
+	}
+
+	resDir, err := cacheControl.ParseResponseCacheControl(resp.Header.Get("Cache-Control"))
+	if err != nil {
+		return
+	}
+
+	expiry := resp.Header.Get("Expires")
+	expiresHeader, err := http.ParseTime(expiry)
+	if err != nil && expiry != "" {
+		return
+	}
+
+	dateHeaderStr := resp.Header.Get("Date")
+	dateHeader, err := http.ParseTime(dateHeaderStr)
+	if err != nil && dateHeaderStr != "" {
+		return
+	}
+
+	lastModifiedStr := resp.Header.Get("Last-Modified")
+	lastModifiedHeader, err := http.ParseTime(lastModifiedStr)
+	if err != nil && lastModifiedStr != "" {
+		return
+	}
+
+	obj := cacheControl.Object{
+		RespDirectives:         resDir,
+		RespHeaders:            resp.Header,
+		RespStatusCode:         resp.StatusCode,
+		RespExpiresHeader:      expiresHeader,
+		RespDateHeader:         dateHeader,
+		RespLastModifiedHeader: lastModifiedHeader,
+		ReqDirectives:          reqDir,
+		ReqHeaders:             req.Header,
+		ReqMethod:              req.Method,
+		NowUTC:                 time.Now().UTC(),
+	}
+
+	validationResult = cacheControl.ObjectResults{}
+	cacheControl.CachableObject(&obj, &validationResult)
+	cacheControl.ExpirationObject(&obj, &validationResult)
+	return
+}
+
 // RoundTrip the implementation of http.RoundTripper
 func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-	if allowedFromCache(req) {
+	if allowedFromCache(req.Header) {
 		resp, cachedItem, err := getCachedResponse(r.CacheInteractor, req)
 		if resp != nil && err == nil {
 			buildTheCachedResponseHeader(resp, cachedItem)
 			return resp, err
 		}
 	}
+
 	err = nil
 	resp, err = r.DefaultRoundTripper.RoundTrip(req)
 	if err != nil {
 		return
 	}
 
-	if !allowedToCache(req, resp) {
+	// Only cache the response of with Success Status
+	if resp.StatusCode >= http.StatusMultipleChoices ||
+		resp.StatusCode < http.StatusOK ||
+		resp.StatusCode == http.StatusNoContent {
+		return
+	}
+
+	validationResult, err := validateTheCacheControl(req, resp)
+	if err != nil {
+		return
+	}
+
+	fmt.Printf("VALIDATION RESULTS: %+v\n", validationResult)
+
+	if validationResult.OutErr != nil {
+		fmt.Println("ERR > ", validationResult.OutErr.Error())
+		return
+	}
+
+	// reasons to not to cache
+	if len(validationResult.OutReasons) > 0 {
 		return
 	}
 
@@ -105,6 +175,20 @@ func getCachedResponse(cacheInteractor cache.Interactor, req *http.Request) (res
 		return
 	}
 
+	validationResult, err := validateTheCacheControl(req, resp)
+	if err != nil {
+		return
+	}
+
+	if validationResult.OutErr != nil {
+		return
+	}
+
+	if time.Now().After(validationResult.OutExpirationTime) {
+		err = fmt.Errorf("cached-item already expired")
+		return
+	}
+
 	return
 }
 
@@ -124,41 +208,32 @@ func buildTheCachedResponseHeader(resp *http.Response, cachedResp cache.CachedRe
 	// TODO: (bxcodec) add more headers related to cache
 }
 
-// check the header if the response will cached or not
-func allowedToCache(req *http.Request, resp *http.Response) (ok bool) {
+func allowedToCache(header http.Header, method string) (ok bool) {
 	// A request with authorization header must not be cached
 	// https://tools.ietf.org/html/rfc7234#section-3.2
 	// Unless configured by user to cache request by authorization
-	if ok = (!CacheAuthorizedRequest && req.Header.Get(HeaderAuthorization) == ""); !ok {
+	if ok = (!CacheAuthorizedRequest && header.Get(HeaderAuthorization) == ""); !ok {
 		return
 	}
 
 	// check if the request method allowed to be cached
-	if ok = requestMethodValid(req); !ok {
+	if strings.ToLower(method) != "get" {
 		return
 	}
 
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#Preventing_caching
-	if ok = strings.ToLower(req.Header.Get(HeaderCacheControl)) != "no-store"; !ok {
+	if ok = strings.ToLower(header.Get(HeaderCacheControl)) != "no-store"; !ok {
 		return
 	}
-	if ok = strings.ToLower(resp.Header.Get(HeaderCacheControl)) != "no-store"; !ok {
+	if ok = strings.ToLower(header.Get(HeaderCacheControl)) != "no-store"; !ok {
 		return
 	}
 
-	// Only cache the response of with code 200
-	if ok = resp.StatusCode == http.StatusOK; !ok {
-		return
-	}
 	return true
 }
 
-func allowedFromCache(req *http.Request) (ok bool) {
+func allowedFromCache(header http.Header) (ok bool) {
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#Cacheability
-	return !strings.Contains(strings.ToLower(req.Header.Get(HeaderCacheControl)), "no-cache") ||
-		!strings.Contains(strings.ToLower(req.Header.Get(HeaderCacheControl)), "no-store")
-}
-
-func requestMethodValid(req *http.Request) bool {
-	return strings.ToLower(req.Method) == "get"
+	return !strings.Contains(strings.ToLower(header.Get(HeaderCacheControl)), "no-cache") ||
+		!strings.Contains(strings.ToLower(header.Get(HeaderCacheControl)), "no-store")
 }
