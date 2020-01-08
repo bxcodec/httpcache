@@ -30,7 +30,6 @@ func main() {
 		fmt.Printf("Response time: %v micro-second\n", time.Since(startTime).Microseconds())
 		fmt.Println("Status Code", res.StatusCode)
 		fmt.Println("Header", res.Header)
-		// fmt.Println("Header", res.Header.Get("expires"))
 		// printBody(res)
 	}
 }
