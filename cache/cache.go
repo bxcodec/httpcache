@@ -23,12 +23,10 @@ type Interactor interface {
 
 // CachedResponse represent the cacher struct item
 type CachedResponse struct {
-	// StatusCode     int       `json:"statusCode"`
-	DumpedResponse []byte `json:"response"` // The dumped response body
-	// DumpedBody     []byte    `json:"body"`
-	RequestURI    string    `json:"requestUri"`    // The requestURI of the response
-	RequestMethod string    `json:"requestMethod"` // The HTTP Method that call the request for this response
-	CachedTime    time.Time `json:"cachedTime"`    // The timestamp when this response is Cached
+	DumpedResponse []byte    `json:"response"`      // The dumped response body
+	RequestURI     string    `json:"requestUri"`    // The requestURI of the response
+	RequestMethod  string    `json:"requestMethod"` // The HTTP Method that call the request for this response
+	CachedTime     time.Time `json:"cachedTime"`    // The timestamp when this response is Cached
 }
 
 // Validate will validate the cached response

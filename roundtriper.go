@@ -135,16 +135,6 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 	return
 }
 
-func getExpiryTimeFromCacheControlFromServer(resp *http.Response) time.Duration {
-	cacheControl := strings.ToLower(resp.Header.Get("cache-control"))
-	if cacheControl == "" {
-		return 0
-	}
-	fmt.Println("CACHE CONTROL ", cacheControl)
-
-	return 0
-}
-
 func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp *http.Response) (err error) {
 	cachedResp := cache.CachedResponse{
 		RequestMethod: req.Method,
@@ -158,7 +148,6 @@ func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp 
 	}
 	cachedResp.DumpedResponse = dumpedResponse
 
-	getExpiryTimeFromCacheControlFromServer(resp)
 	err = cacheInteractor.Set(getCacheKey(req), cachedResp, 0)
 	return
 }
