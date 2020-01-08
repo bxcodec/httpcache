@@ -14,11 +14,18 @@ var (
 	ErrCacheMissed = errors.New("Cache is missing")
 )
 
+const (
+	CacheStorageInMemory = "IN-MEMORY"
+	CacheRedis           = "REDIS"
+	// TODO (bxcodec): Add another storage type
+)
+
 // Interactor ...
 type Interactor interface {
 	Set(key string, value CachedResponse, duration time.Duration) error
 	Get(key string) (CachedResponse, error)
 	Delete(key string) error
+	Origin() string
 }
 
 // CachedResponse represent the cacher struct item

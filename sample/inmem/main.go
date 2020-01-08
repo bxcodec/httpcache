@@ -19,7 +19,7 @@ func main() {
 
 	for i := 0; i < 10; i++ {
 		startTime := time.Now()
-		req, err := http.NewRequest("GET", "https://google.com", nil)
+		req, err := http.NewRequest("GET", "https://bxcodec.io", nil)
 		if err != nil {
 			log.Fatal((err))
 		}
