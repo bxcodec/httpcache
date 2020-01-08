@@ -52,7 +52,9 @@ func validateTheCacheControl(req *http.Request, resp *http.Response) (validation
 
 	expiry := resp.Header.Get("Expires")
 	expiresHeader, err := http.ParseTime(expiry)
-	if err != nil && expiry != "" {
+	if err != nil && expiry != "" &&
+		// https://stackoverflow.com/questions/11357430/http-expires-header-values-0-and-1
+		expiry != "-1" && expiry != "0" {
 		return
 	}
 
@@ -84,7 +86,8 @@ func validateTheCacheControl(req *http.Request, resp *http.Response) (validation
 	validationResult = cacheControl.ObjectResults{}
 	cacheControl.CachableObject(&obj, &validationResult)
 	cacheControl.ExpirationObject(&obj, &validationResult)
-	return
+
+	return validationResult, nil
 }
 
 // RoundTrip the implementation of http.RoundTripper
@@ -115,10 +118,7 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 		return
 	}
 
-	fmt.Printf("VALIDATION RESULTS: %+v\n", validationResult)
-
 	if validationResult.OutErr != nil {
-		fmt.Println("ERR > ", validationResult.OutErr.Error())
 		return
 	}
 
@@ -129,7 +129,8 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 
 	err = storeRespToCache(r.CacheInteractor, req, resp)
 	if err != nil {
-		log.Println(err)
+		log.Printf("Can't store the response to database, plase check. Err: %v\n", err)
+		err = nil // set err back to nil to make the call still success.
 	}
 
 	return
