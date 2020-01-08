@@ -35,3 +35,7 @@ func (i *inmemCache) Get(key string) (res cache.CachedResponse, err error) {
 func (i *inmemCache) Delete(key string) (err error) {
 	return i.cache.Delete(key)
 }
+
+func (i *inmemCache) Origin() string {
+	return cache.CacheStorageInMemory
+}

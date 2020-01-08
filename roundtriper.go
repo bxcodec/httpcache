@@ -18,6 +18,9 @@ import (
 const (
 	HeaderAuthorization = "Authorization"
 	HeaderCacheControl  = "Cache-Control"
+	// To indicate that the response is got from this hache library
+	XFromHache   = "X-Hache"
+	XHacheOrigin = "X-Hache-Origin"
 )
 
 var (
@@ -95,7 +98,7 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 	if allowedFromCache(req.Header) {
 		resp, cachedItem, err := getCachedResponse(r.CacheInteractor, req)
 		if resp != nil && err == nil {
-			buildTheCachedResponseHeader(resp, cachedItem)
+			buildTheCachedResponseHeader(resp, cachedItem, r.CacheInteractor.Origin())
 			return resp, err
 		}
 	}
@@ -193,8 +196,10 @@ func getCacheKey(req *http.Request) (key string) {
 }
 
 // buildTheCachedResponse will finalize the response header
-func buildTheCachedResponseHeader(resp *http.Response, cachedResp cache.CachedResponse) {
+func buildTheCachedResponseHeader(resp *http.Response, cachedResp cache.CachedResponse, origin string) {
 	resp.Header.Add("Expires", cachedResp.CachedTime.String())
+	resp.Header.Add(XFromHache, "true")
+	resp.Header.Add(XHacheOrigin, origin)
 	// TODO: (bxcodec) add more headers related to cache
 }
 
