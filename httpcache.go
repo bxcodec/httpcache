@@ -10,8 +10,10 @@ import (
 	"github.com/bxcodec/httpcache/cache/inmem"
 )
 
-// New ...
-func New(client *http.Client, cacheInteractor cache.Interactor) (err error) {
+// NewWithCustomStorageCache will initiate the httpcache with your defined cache storage
+// To use your own cache storage handler, you need to implement the cache.Interactor interface
+// And pass it to httpcache.
+func NewWithCustomStorageCache(client *http.Client, cacheInteractor cache.Interactor) (err error) {
 	return newClient(client, cacheInteractor)
 }
 

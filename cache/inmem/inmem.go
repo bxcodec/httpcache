@@ -11,7 +11,7 @@ type inmemCache struct {
 	cache memcache.Cache
 }
 
-// NewCache ...
+// NewCache will return the inmemory cache handler
 func NewCache(c memcache.Cache) cache.Interactor {
 	return &inmemCache{
 		cache: c,
