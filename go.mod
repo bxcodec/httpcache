@@ -1,4 +1,4 @@
-module github.com/bxcodec/hache
+module github.com/bxcodec/httpcache
 
 go 1.13
 

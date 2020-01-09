@@ -1,4 +1,4 @@
-package hache
+package httpcache
 
 import (
 	"net/http"
@@ -6,8 +6,8 @@ import (
 
 	"github.com/bxcodec/gotcha"
 	inmemcache "github.com/bxcodec/gotcha/cache"
-	"github.com/bxcodec/hache/cache"
-	"github.com/bxcodec/hache/cache/inmem"
+	"github.com/bxcodec/httpcache/cache"
+	"github.com/bxcodec/httpcache/cache/inmem"
 )
 
 // New ...

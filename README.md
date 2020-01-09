@@ -7,9 +7,9 @@ What if, we just inject the cache to the HTTP client. So we don't have to create
 
 ## Introduce Hache: Injecte-able HTTP Cache for Golang HTTP Client
 
-[![Build Status](https://travis-ci.com/bxcodec/hache.svg?token=Y64SjWyDK7wXJiFFqV6M&branch=master)](https://travis-ci.com/bxcodec/hache)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/bxcodec/hache/blob/master/LICENSE)
-[![GoDoc](https://godoc.org/github.com/bxcodec/hache?status.svg)](https://godoc.org/github.com/bxcodec/hache)
+[![Build Status](https://travis-ci.com/bxcodec/httpcache.svg?token=Y64SjWyDK7wXJiFFqV6M&branch=master)](https://travis-ci.com/bxcodec/httpcache)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/bxcodec/httpcache/blob/master/LICENSE)
+[![GoDoc](https://godoc.org/github.com/bxcodec/httpcache?status.svg)](https://godoc.org/github.com/bxcodec/httpcache)
 
 This package is used for caching your http request results from the server. Example how to use can be seen below.
 
@@ -24,8 +24,8 @@ This package is used for caching your http request results from the server. Exam
 
 ## Support
 
-You can file an [Issue](https://github.com/bxcodec/hache/issues/new).
-See documentation in [Godoc](https://godoc.org/github.com/bxcodec/hache)
+You can file an [Issue](https://github.com/bxcodec/httpcache/issues/new).
+See documentation in [Godoc](https://godoc.org/github.com/bxcodec/httpcache)
 
 
 ## Getting Started
@@ -33,7 +33,7 @@ See documentation in [Godoc](https://godoc.org/github.com/bxcodec/hache)
 #### Download
 
 ```shell
-go get -u github.com/bxcodec/hache
+go get -u github.com/bxcodec/httpcache
 ```
 # Example
 
@@ -47,7 +47,7 @@ Short example:
 
 // Inject the HTTP Client with Hache
 client := &http.Client{}
-err := hache.NewWithInmemoryCache(client, time.Second*60)
+err := httpcache.NewWithInmemoryCache(client, time.Second*60)
 if err != nil {
   log.Fatal(err)
 }

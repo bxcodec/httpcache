@@ -4,7 +4,7 @@ import (
 	"time"
 
 	memcache "github.com/bxcodec/gotcha/cache"
-	"github.com/bxcodec/hache/cache"
+	"github.com/bxcodec/httpcache/cache"
 )
 
 type inmemCache struct {
