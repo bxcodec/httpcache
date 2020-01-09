@@ -33,7 +33,7 @@ See documentation in [Godoc](https://godoc.org/github.com/bxcodec/hache)
 #### Download
 
 ```shell
-go get -u github.com/bxcodec/hache/v3
+go get -u github.com/bxcodec/hache
 ```
 # Example
 
