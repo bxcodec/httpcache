@@ -1,8 +1,6 @@
 # httpcache, inject-able HTTP cache in Golang
 
-### Based on RFCC 7234
-
-Howdy there!!!
+**Howdy there!!!**
 
 Usually when we want to integrate with cache (let's say Redis), we usually have to do many changes in our code. 
 What if, we just inject the cache to the HTTP client. So we don't have to create many changes in every line of our code to support the cache features?
