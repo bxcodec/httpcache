@@ -97,7 +97,9 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 			return cachedResp, cachedErr
 		}
 		// if error when getting from cachce, ignore it, re-try a live version
-		log.Println(err, "failed to retrieve from cache")
+		if cachedErr != nil {
+			log.Println(cachedErr, "failed to retrieve from cache, trying with a live version")
+		}
 	}
 
 	err = nil
