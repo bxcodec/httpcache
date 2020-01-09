@@ -19,8 +19,8 @@ const (
 	HeaderAuthorization = "Authorization"
 	HeaderCacheControl  = "Cache-Control"
 	// To indicate that the response is got from this httpcache library
-	XFromHache   = "X-Hache"
-	XHacheOrigin = "X-Hache-Origin"
+	XFromHache   = "X-HTTPCache"
+	XHacheOrigin = "X-HTTPCache-Origin"
 )
 
 // RoundTrip custom plugable' struct of implementation of the http.RoundTripper
