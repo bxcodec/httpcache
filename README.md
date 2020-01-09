@@ -7,7 +7,7 @@ What if, we just inject the cache to the HTTP client. So we don't have to create
 
 ## Introduce Hache: Injecte-able HTTP Cache for Golang HTTP Client
 
-[![Build Status](https://travis-ci.com/bxcodec/hache.svg?token=Y64SjWyDK7wXJiFFqV6M&branch=master)](https://travis-ci.org/bxcodec/hache)
+[![Build Status](https://travis-ci.com/bxcodec/hache.svg?token=Y64SjWyDK7wXJiFFqV6M&branch=master)](https://travis-ci.com/bxcodec/hache)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/bxcodec/hache/blob/master/LICENSE)
 [![GoDoc](https://godoc.org/github.com/bxcodec/hache?status.svg)](https://godoc.org/github.com/bxcodec/hache)
 
