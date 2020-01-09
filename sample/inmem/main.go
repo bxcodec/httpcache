@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bxcodec/hache"
+	"github.com/bxcodec/httpcache"
 )
 
 func main() {
 	client := &http.Client{}
-	err := hache.NewWithInmemoryCache(client, time.Second*60)
+	err := httpcache.NewWithInmemoryCache(client, time.Second*60)
 	if err != nil {
 		log.Fatal(err)
 	}

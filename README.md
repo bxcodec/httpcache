@@ -1,15 +1,14 @@
-# Docs
+# httpcache, inject-able HTTP cache in Golang
 
-Howdy there!!!
+**Howdy there!!!**
 
 Usually when we want to integrate with cache (let's say Redis), we usually have to do many changes in our code. 
-What if, we just inject the cache to the HTTP client. So we don't have to create many changes in each line of our code to get the data from Cache, do the validation etc.
+What if, we just inject the cache to the HTTP client. So we don't have to create many changes in every line of our code to support the cache features?
+With only less than 10 line of code, you can got a complete implementations of HTTP Cache based on [RFC 7234](http://tools.ietf.org/html/rfc7234)
 
-## Introduce Hache: Injecte-able HTTP Cache for Golang HTTP Client
-
-[![Build Status](https://travis-ci.com/bxcodec/hache.svg?token=Y64SjWyDK7wXJiFFqV6M&branch=master)](https://travis-ci.com/bxcodec/hache)
-[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/bxcodec/hache/blob/master/LICENSE)
-[![GoDoc](https://godoc.org/github.com/bxcodec/hache?status.svg)](https://godoc.org/github.com/bxcodec/hache)
+[![Build Status](https://travis-ci.com/bxcodec/httpcache.svg?token=Y64SjWyDK7wXJiFFqV6M&branch=master)](https://travis-ci.com/bxcodec/httpcache)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/bxcodec/httpcache/blob/master/LICENSE)
+[![GoDoc](https://godoc.org/github.com/bxcodec/httpcache?status.svg)](https://godoc.org/github.com/bxcodec/httpcache)
 
 This package is used for caching your http request results from the server. Example how to use can be seen below.
 
@@ -17,15 +16,14 @@ This package is used for caching your http request results from the server. Exam
 
 * [Support](#support)
 * [Getting Started](#getting-started)
-* [Example](#example)
-* [Limitation](#limitation)
+* [Example](#example) 
 * [Contribution](#contribution)
 
 
 ## Support
 
-You can file an [Issue](https://github.com/bxcodec/hache/issues/new).
-See documentation in [Godoc](https://godoc.org/github.com/bxcodec/hache)
+You can file an [Issue](https://github.com/bxcodec/httpcache/issues/new).
+See documentation in [Godoc](https://godoc.org/github.com/bxcodec/httpcache)
 
 
 ## Getting Started
@@ -33,7 +31,7 @@ See documentation in [Godoc](https://godoc.org/github.com/bxcodec/hache)
 #### Download
 
 ```shell
-go get -u github.com/bxcodec/hache
+go get -u github.com/bxcodec/httpcache
 ```
 # Example
 
@@ -45,9 +43,9 @@ Short example:
 
 ```go
 
-// Inject the HTTP Client with Hache
+// Inject the HTTP Client with httpcache
 client := &http.Client{}
-err := hache.NewWithInmemoryCache(client, time.Second*60)
+err := httpcache.NewWithInmemoryCache(client, time.Second*60)
 if err != nil {
   log.Fatal(err)
 }
@@ -73,13 +71,13 @@ for i:=0; i< 10; i++ {
 // See the response time, it will different on each request and will go smaller.
 ```
 
-### Inject with your Redis Service
-//TODO(bxcodec)
-
+### TODOs
+- [ ] Add Redis Storage
 
 
 ## Inspirations and Thanks
 - [pquerna/cachecontrol](https://github.com/pquerna/cachecontrol) for the Cache-Header Extraction
+- [bxcodec/gothca](https://github.com/bxcodec/gotcha) for in-memory cache. _*Notes: if you find another library that has a better way for inmemm cache, please raise an issue and submit a PR_
 
 
 ## Contribution

@@ -1,4 +1,4 @@
-package hache
+package httpcache
 
 import (
 	"bufio"
@@ -10,17 +10,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bxcodec/hache/cache"
-	cacheControl "github.com/bxcodec/hache/helper/cacheheader"
+	"github.com/bxcodec/httpcache/cache"
+	cacheControl "github.com/bxcodec/httpcache/helper/cacheheader"
 )
 
 // Headers
 const (
 	HeaderAuthorization = "Authorization"
 	HeaderCacheControl  = "Cache-Control"
-	// To indicate that the response is got from this hache library
-	XFromHache   = "X-Hache"
-	XHacheOrigin = "X-Hache-Origin"
+	// To indicate that the response is got from this httpcache library
+	XFromHache   = "X-HTTPCache"
+	XHacheOrigin = "X-HTTPCache-Origin"
 )
 
 // RoundTrip custom plugable' struct of implementation of the http.RoundTripper
