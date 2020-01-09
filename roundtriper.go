@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/bxcodec/hache/cache"
-	cacheControl "github.com/bxcodec/hache/control/cacheheader"
+	cacheControl "github.com/bxcodec/hache/helper/cacheheader"
 )
 
 // Headers
@@ -21,11 +21,6 @@ const (
 	// To indicate that the response is got from this hache library
 	XFromHache   = "X-Hache"
 	XHacheOrigin = "X-Hache-Origin"
-)
-
-var (
-	// CacheAuthorizedRequest used for determine that a request with Authorization header should be cached or not
-	CacheAuthorizedRequest = false // TODO(bxcodec): Need to revised about this feature
 )
 
 // RoundTrip custom plugable' struct of implementation of the http.RoundTripper
@@ -96,10 +91,14 @@ func validateTheCacheControl(req *http.Request, resp *http.Response) (validation
 // RoundTrip the implementation of http.RoundTripper
 func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error) {
 	if allowedFromCache(req.Header) {
-		resp, cachedItem, err := getCachedResponse(r.CacheInteractor, req)
-		if resp != nil && err == nil {
-			buildTheCachedResponseHeader(resp, cachedItem, r.CacheInteractor.Origin())
-			return resp, err
+		cachedResp, cachedItem, cachedErr := getCachedResponse(r.CacheInteractor, req)
+		if cachedResp != nil && cachedErr == nil {
+			buildTheCachedResponseHeader(cachedResp, cachedItem, r.CacheInteractor.Origin())
+			return cachedResp, cachedErr
+		}
+		// if error when getting from cachce, ignore it, re-try a live version
+		if cachedErr != nil {
+			log.Println(cachedErr, "failed to retrieve from cache, trying with a live version")
 		}
 	}
 
@@ -187,8 +186,7 @@ func getCachedResponse(cacheInteractor cache.Interactor, req *http.Request) (res
 
 func getCacheKey(req *http.Request) (key string) {
 	key = fmt.Sprintf("%s %s", req.Method, req.RequestURI)
-	if (CacheAuthorizedRequest ||
-		(strings.ToLower(req.Header.Get(HeaderCacheControl)) == "private")) &&
+	if (strings.ToLower(req.Header.Get(HeaderCacheControl)) == "private") &&
 		req.Header.Get(HeaderAuthorization) != "" {
 		key = fmt.Sprintf("%s %s", key, req.Header.Get(HeaderAuthorization))
 	}
@@ -201,30 +199,6 @@ func buildTheCachedResponseHeader(resp *http.Response, cachedResp cache.CachedRe
 	resp.Header.Add(XFromHache, "true")
 	resp.Header.Add(XHacheOrigin, origin)
 	// TODO: (bxcodec) add more headers related to cache
-}
-
-func allowedToCache(header http.Header, method string) (ok bool) {
-	// A request with authorization header must not be cached
-	// https://tools.ietf.org/html/rfc7234#section-3.2
-	// Unless configured by user to cache request by authorization
-	if ok = (!CacheAuthorizedRequest && header.Get(HeaderAuthorization) == ""); !ok {
-		return
-	}
-
-	// check if the request method allowed to be cached
-	if strings.ToLower(method) != "get" {
-		return
-	}
-
-	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control#Preventing_caching
-	if ok = strings.ToLower(header.Get(HeaderCacheControl)) != "no-store"; !ok {
-		return
-	}
-	if ok = strings.ToLower(header.Get(HeaderCacheControl)) != "no-store"; !ok {
-		return
-	}
-
-	return true
 }
 
 func allowedFromCache(header http.Header) (ok bool) {

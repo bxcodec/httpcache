@@ -6,9 +6,10 @@ import (
 	"time"
 )
 
-// Repersents an HTTP Warning: http://tools.ietf.org/html/rfc7234#section-5.5
+// Warning represents an HTTP Warning: http://tools.ietf.org/html/rfc7234#section-5.5
 type Warning int
 
+// Warning response code
 const (
 	// Response is Stale
 	// A cache SHOULD generate this whenever the sent response is stale.
@@ -56,6 +57,7 @@ const (
 	WarningMiscellaneousPersistentWarning Warning = 299
 )
 
+// HeaderString will convert the warning to string format
 func (w Warning) HeaderString(agent string, date time.Time) string {
 	if agent == "" {
 		agent = "-"

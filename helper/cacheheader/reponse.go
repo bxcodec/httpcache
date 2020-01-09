@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// LOW LEVEL API: Repersents a potentially cachable HTTP object.
+// Object struct is represents a potentially cachable HTTP object.
 //
 // This struct is designed to be serialized efficiently, so in a high
 // performance caching server, things like Date-Strings don't need to be
@@ -27,7 +27,7 @@ type Object struct {
 	NowUTC time.Time
 }
 
-// LOW LEVEL API: Repersents the results of examinig an Object with
+// ObjectResults is represents the results of examinig an Object with
 // CachableObject and ExpirationObject.
 //
 // TODO(pquerna): decide if this is a good idea or bad
@@ -38,7 +38,7 @@ type ObjectResults struct {
 	OutErr            error
 }
 
-// LOW LEVEL API: Check if a object is cachable.
+// CachableObject is used for checking if a object is cachable.
 func CachableObject(obj *Object, rv *ObjectResults) {
 	rv.OutReasons = nil
 	rv.OutWarnings = nil
@@ -139,11 +139,11 @@ func CachableObject(obj *Object, rv *ObjectResults) {
 	}
 }
 
-var twentyFourHours = time.Duration(24 * time.Hour)
+var twentyFourHours = 24 * time.Hour
 
 const debug = false
 
-// LOW LEVEL API: Update an objects expiration time.
+// ExpirationObject is used for to update an objects expiration time.
 func ExpirationObject(obj *Object, rv *ObjectResults) {
 	/**
 	 * Okay, lets calculate Freshness/Expiration now. woo:
@@ -204,14 +204,12 @@ func ExpirationObject(obj *Object, rv *ObjectResults) {
 			println("TwentyFourHours: ", twentyFourHours.String())
 			println("Expiration: ", expiresTime.String())
 		}
-	} else {
-		// TODO(pquerna): what should the default behavoir be for expiration time?
 	}
 
 	rv.OutExpirationTime = expiresTime
 }
 
-// Evaluate cachability based on an HTTP request, and parts of the response.
+// UsingRequestResponse will Evaluate cachability based on an HTTP request, and parts of the response.
 func UsingRequestResponse(req *http.Request,
 	statusCode int,
 	respHeaders http.Header,
@@ -220,7 +218,7 @@ func UsingRequestResponse(req *http.Request,
 	return reasons, time, err
 }
 
-// Evaluate cachability based on an HTTP request, and parts of the response.
+// UsingRequestResponseWithObject will Evaluate cachability based on an HTTP request, and parts of the response.
 // Returns the parsed Object as well.
 func UsingRequestResponseWithObject(req *http.Request,
 	statusCode int,
@@ -307,6 +305,9 @@ func UsingRequestResponseWithObject(req *http.Request,
 
 // calculate if a freshness directive is present: http://tools.ietf.org/html/rfc7234#section-4.2.1
 func hasFreshness(reqDir *RequestCacheDirectives, respDir *ResponseCacheDirectives, respHeaders http.Header, respExpires time.Time, privateCache bool) bool {
+	// ignore for now
+	_ = reqDir
+
 	if !privateCache && respDir.SMaxAge != -1 {
 		return true
 	}

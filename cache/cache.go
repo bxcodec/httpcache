@@ -14,6 +14,7 @@ var (
 	ErrCacheMissed = errors.New("Cache is missing")
 )
 
+// Cache storage type
 const (
 	CacheStorageInMemory = "IN-MEMORY"
 	CacheRedis           = "REDIS"
