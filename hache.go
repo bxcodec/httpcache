@@ -12,8 +12,7 @@ import (
 
 // New ...
 func New(client *http.Client, cacheInteractor cache.Interactor) (err error) {
-	newClient(client, cacheInteractor)
-	return
+	return newClient(client, cacheInteractor)
 }
 
 func newClient(client *http.Client, cacheInteractor cache.Interactor) (err error) {

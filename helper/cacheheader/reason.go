@@ -1,15 +1,14 @@
-
 package cacheheader
 
-// Repersents a potential Reason to not cache an object.
+// Reason Represents a potential Reason to not cache an object.
 //
 // Applications may wish to ignore specific reasons, which will make them non-RFC
 // compliant, but this type gives them specific cases they can choose to ignore,
 // making them compliant in as many cases as they can.
 type Reason int
 
+//  Reason ENUM code number
 const (
-
 	// The request method was POST and an Expiration header was not supplied.
 	ReasonRequestMethodPOST Reason = iota
 
@@ -47,6 +46,7 @@ const (
 	ReasonResponseUncachableByDefault
 )
 
+// String will return the string version of the reason number
 func (r Reason) String() string {
 	switch r {
 	case ReasonRequestMethodPOST:

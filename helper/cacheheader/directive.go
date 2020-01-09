@@ -11,23 +11,35 @@ import (
 
 // TODO(bxcodec): more extensions from here: http://www.iana.org/assignments/http-cache-directives/http-cache-directives.xhtml
 
+// Directive errors
 var (
-	ErrQuoteMismatch         = errors.New("Missing closing quote")
-	ErrMaxAgeDeltaSeconds    = errors.New("Failed to parse delta-seconds in `max-age`")
-	ErrSMaxAgeDeltaSeconds   = errors.New("Failed to parse delta-seconds in `s-maxage`")
-	ErrMaxStaleDeltaSeconds  = errors.New("Failed to parse delta-seconds in `min-fresh`")
-	ErrMinFreshDeltaSeconds  = errors.New("Failed to parse delta-seconds in `min-fresh`")
-	ErrNoCacheNoArgs         = errors.New("Unexpected argument to `no-cache`")
-	ErrNoStoreNoArgs         = errors.New("Unexpected argument to `no-store`")
-	ErrNoTransformNoArgs     = errors.New("Unexpected argument to `no-transform`")
-	ErrOnlyIfCachedNoArgs    = errors.New("Unexpected argument to `only-if-cached`")
-	ErrMustRevalidateNoArgs  = errors.New("Unexpected argument to `must-revalidate`")
-	ErrPublicNoArgs          = errors.New("Unexpected argument to `public`")
-	ErrProxyRevalidateNoArgs = errors.New("Unexpected argument to `proxy-revalidate`")
+	ErrQuoteMismatch         = errors.New("missing closing quote")
+	ErrMaxAgeDeltaSeconds    = errors.New("failed to parse delta-seconds in `max-age`")
+	ErrSMaxAgeDeltaSeconds   = errors.New("failed to parse delta-seconds in `s-maxage`")
+	ErrMaxStaleDeltaSeconds  = errors.New("failed to parse delta-seconds in `min-fresh`")
+	ErrMinFreshDeltaSeconds  = errors.New("failed to parse delta-seconds in `min-fresh`")
+	ErrNoCacheNoArgs         = errors.New("unexpected argument to `no-cache`")
+	ErrNoStoreNoArgs         = errors.New("unexpected argument to `no-store`")
+	ErrNoTransformNoArgs     = errors.New("unexpected argument to `no-transform`")
+	ErrOnlyIfCachedNoArgs    = errors.New("unexpected argument to `only-if-cached`")
+	ErrMustRevalidateNoArgs  = errors.New("unexpected argument to `must-revalidate`")
+	ErrPublicNoArgs          = errors.New("unexpected argument to `public`")
+	ErrProxyRevalidateNoArgs = errors.New("unexpected argument to `proxy-revalidate`")
 	// Experimental
-	ErrImmutableNoArgs                  = errors.New("Unexpected argument to `immutable`")
-	ErrStaleIfErrorDeltaSeconds         = errors.New("Failed to parse delta-seconds in `stale-if-error`")
-	ErrStaleWhileRevalidateDeltaSeconds = errors.New("Failed to parse delta-seconds in `stale-while-revalidate`")
+	ErrImmutableNoArgs                  = errors.New("unexpected argument to `immutable`")
+	ErrStaleIfErrorDeltaSeconds         = errors.New("failed to parse delta-seconds in `stale-if-error`")
+	ErrStaleWhileRevalidateDeltaSeconds = errors.New("failed to parse delta-seconds in `stale-while-revalidate`")
+)
+
+// Cacheable HTTP header directives
+const (
+	HeaderNoCache      = "no-cache"
+	HeaderNoStore      = "no-store"
+	HeaderMaxAge       = "max-age"
+	HeaderMaxStale     = "max-stale"
+	HeaderMinFresh     = "min-fresh"
+	HeaderNoTransform  = "no-transform"
+	HeaderOnlyIfCached = "only-if-cached"
 )
 
 func whitespace(b byte) bool {
@@ -129,16 +141,15 @@ func parseDeltaSeconds(v string) (DeltaSeconds, error) {
 			}
 		}
 		return DeltaSeconds(-1), err
-	} else {
-		if n > math.MaxInt32 {
-			return DeltaSeconds(math.MaxInt32), nil
-		} else {
-			return DeltaSeconds(n), nil
-		}
 	}
+
+	if n > math.MaxInt32 {
+		return DeltaSeconds(math.MaxInt32), nil
+	}
+	return DeltaSeconds(n), nil
 }
 
-// Fields present in a header.
+// FieldNames that present in a header.
 type FieldNames map[string]bool
 
 // internal interface for shared methods of RequestCacheDirectives and ResponseCacheDirectives
@@ -147,7 +158,7 @@ type cacheDirective interface {
 	addPair(s string, v string) error
 }
 
-// LOW LEVEL API: Repersentation of possible request directives in a `Cache-Control` header: http://tools.ietf.org/html/rfc7234#section-5.2.1
+// RequestCacheDirectives is representation of possible request directives in a `Cache-Control` header: http://tools.ietf.org/html/rfc7234#section-5.2.1
 //
 // Note: Many fields will be `nil` in practice.
 //
@@ -218,18 +229,18 @@ type RequestCacheDirectives struct {
 }
 
 func (cd *RequestCacheDirectives) addToken(token string) error {
-	var err error = nil
+	var err error
 
 	switch token {
-	case "max-age":
+	case HeaderMaxAge:
 		err = ErrMaxAgeDeltaSeconds
-	case "max-stale":
+	case HeaderMaxStale:
 		err = ErrMaxStaleDeltaSeconds
-	case "min-fresh":
+	case HeaderMinFresh:
 		err = ErrMinFreshDeltaSeconds
-	case "no-cache":
+	case HeaderNoCache:
 		cd.NoCache = true
-	case "no-store":
+	case HeaderNoStore:
 		cd.NoStore = true
 	case "no-transform":
 		cd.NoTransform = true
@@ -245,24 +256,24 @@ func (cd *RequestCacheDirectives) addPair(token string, v string) error {
 	var err error = nil
 
 	switch token {
-	case "max-age":
+	case HeaderMaxAge:
 		cd.MaxAge, err = parseDeltaSeconds(v)
 		if err != nil {
 			err = ErrMaxAgeDeltaSeconds
 		}
-	case "max-stale":
+	case HeaderMaxStale:
 		cd.MaxStale, err = parseDeltaSeconds(v)
 		if err != nil {
 			err = ErrMaxStaleDeltaSeconds
 		}
-	case "min-fresh":
+	case HeaderMinFresh:
 		cd.MinFresh, err = parseDeltaSeconds(v)
 		if err != nil {
 			err = ErrMinFreshDeltaSeconds
 		}
-	case "no-cache":
+	case HeaderNoCache:
 		err = ErrNoCacheNoArgs
-	case "no-store":
+	case HeaderNoStore:
 		err = ErrNoStoreNoArgs
 	case "no-transform":
 		err = ErrNoTransformNoArgs
@@ -276,7 +287,7 @@ func (cd *RequestCacheDirectives) addPair(token string, v string) error {
 	return err
 }
 
-// LOW LEVEL API: Parses a Cache Control Header from a Request into a set of directives.
+// ParseRequestCacheControl Parses a Cache Control Header from a Request into a set of directives.
 func ParseRequestCacheControl(value string) (*RequestCacheDirectives, error) {
 	cd := &RequestCacheDirectives{
 		MaxAge:   -1,
@@ -291,7 +302,7 @@ func ParseRequestCacheControl(value string) (*RequestCacheDirectives, error) {
 	return cd, nil
 }
 
-// LOW LEVEL API: Repersentation of possible response directives in a `Cache-Control` header: http://tools.ietf.org/html/rfc7234#section-5.2.2
+// ResponseCacheDirectives  Representation of possible response directives in a `Cache-Control` header: http://tools.ietf.org/html/rfc7234#section-5.2.2
 //
 // Note: Many fields will be `nil` in practice.
 //
@@ -413,7 +424,7 @@ type ResponseCacheDirectives struct {
 	Extensions []string
 }
 
-// LOW LEVEL API: Parses a Cache Control Header from a Response into a set of directives.
+//ParseResponseCacheControl will Parses a Cache Control Header from a Response into a set of directives.
 func ParseResponseCacheControl(value string) (*ResponseCacheDirectives, error) {
 	cd := &ResponseCacheDirectives{
 		MaxAge:  -1,
@@ -431,13 +442,13 @@ func ParseResponseCacheControl(value string) (*ResponseCacheDirectives, error) {
 }
 
 func (cd *ResponseCacheDirectives) addToken(token string) error {
-	var err error = nil
+	var err error
 	switch token {
 	case "must-revalidate":
 		cd.MustRevalidate = true
-	case "no-cache":
+	case HeaderNoCache:
 		cd.NoCachePresent = true
-	case "no-store":
+	case HeaderNoStore:
 		cd.NoStore = true
 	case "no-transform":
 		cd.NoTransform = true
@@ -447,7 +458,7 @@ func (cd *ResponseCacheDirectives) addToken(token string) error {
 		cd.PrivatePresent = true
 	case "proxy-revalidate":
 		cd.ProxyRevalidate = true
-	case "max-age":
+	case HeaderMaxAge:
 		err = ErrMaxAgeDeltaSeconds
 	case "s-maxage":
 		err = ErrSMaxAgeDeltaSeconds
@@ -466,7 +477,7 @@ func (cd *ResponseCacheDirectives) addToken(token string) error {
 
 func hasFieldNames(token string) bool {
 	switch token {
-	case "no-cache":
+	case HeaderNoCache:
 		return true
 	case "private":
 		return true
@@ -480,7 +491,7 @@ func (cd *ResponseCacheDirectives) addPair(token string, v string) error {
 	switch token {
 	case "must-revalidate":
 		err = ErrMustRevalidateNoArgs
-	case "no-cache":
+	case HeaderNoCache:
 		cd.NoCachePresent = true
 		tokens := strings.Split(v, ",")
 		if cd.NoCache == nil {
@@ -490,7 +501,7 @@ func (cd *ResponseCacheDirectives) addPair(token string, v string) error {
 			k := http.CanonicalHeaderKey(textproto.TrimString(t))
 			cd.NoCache[k] = true
 		}
-	case "no-store":
+	case HeaderNoStore:
 		err = ErrNoStoreNoArgs
 	case "no-transform":
 		err = ErrNoTransformNoArgs
@@ -508,7 +519,7 @@ func (cd *ResponseCacheDirectives) addPair(token string, v string) error {
 		}
 	case "proxy-revalidate":
 		err = ErrProxyRevalidateNoArgs
-	case "max-age":
+	case HeaderMaxAge:
 		cd.MaxAge, err = parseDeltaSeconds(v)
 	case "s-maxage":
 		cd.SMaxAge, err = parseDeltaSeconds(v)

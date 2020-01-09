@@ -81,7 +81,7 @@ for i:=0; i< 10; i++ {
 
 
 ## Inspirations and Thanks
-- [pquerna/cachecontrol](github.com/pquerna/cachecontrol) for the Cache-Header Extraction
+- [pquerna/cachecontrol](https://github.com/pquerna/cachecontrol) for the Cache-Header Extraction
 
 
 ## Contribution
