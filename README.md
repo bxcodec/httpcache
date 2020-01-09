@@ -1,11 +1,10 @@
-# Docs
+# httpcache, inject-able http cache in golang.
 
 Howdy there!!!
 
 Usually when we want to integrate with cache (let's say Redis), we usually have to do many changes in our code. 
-What if, we just inject the cache to the HTTP client. So we don't have to create many changes in each line of our code to get the data from Cache, do the validation etc.
-
-## Introduce Hache: Injecte-able HTTP Cache for Golang HTTP Client
+What if, we just inject the cache to the HTTP client. So we don't have to create many changes in every line of our code to support the cache features?
+With only less than 10 line of code, you can got a complete implementations of HTTP Cache based on [RFC 7234](http://tools.ietf.org/html/rfc7234)
 
 [![Build Status](https://travis-ci.com/bxcodec/httpcache.svg?token=Y64SjWyDK7wXJiFFqV6M&branch=master)](https://travis-ci.com/bxcodec/httpcache)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/bxcodec/httpcache/blob/master/LICENSE)
@@ -17,8 +16,7 @@ This package is used for caching your http request results from the server. Exam
 
 * [Support](#support)
 * [Getting Started](#getting-started)
-* [Example](#example)
-* [Limitation](#limitation)
+* [Example](#example) 
 * [Contribution](#contribution)
 
 
@@ -45,7 +43,7 @@ Short example:
 
 ```go
 
-// Inject the HTTP Client with Hache
+// Inject the HTTP Client with httpcache
 client := &http.Client{}
 err := httpcache.NewWithInmemoryCache(client, time.Second*60)
 if err != nil {
@@ -73,13 +71,13 @@ for i:=0; i< 10; i++ {
 // See the response time, it will different on each request and will go smaller.
 ```
 
-### Inject with your Redis Service
-//TODO(bxcodec)
-
+### TODOs
+- [ ] Add Redis Storage
 
 
 ## Inspirations and Thanks
 - [pquerna/cachecontrol](https://github.com/pquerna/cachecontrol) for the Cache-Header Extraction
+- [bxcodec/gothca](https://github.com/bxcodec/gotcha) for in-memory cache. *notes: if you find another library that has a better way for inmemm cache, please raise an issue and submit a PR
 
 
 ## Contribution
