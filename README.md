@@ -1,4 +1,4 @@
-# httpcache, inject-able http cache in golang.
+# httpcache, inject-able HTTP cache in Golang, based on RFCC 7234
 
 Howdy there!!!
 
