@@ -11,4 +11,4 @@ before_install:
 script:
   - make lint-prepare
   - make lint
-  - make test 
+  - make short-test 
