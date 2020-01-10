@@ -340,6 +340,7 @@ func hasFreshness(reqDir *RequestCacheDirectives, respDir *ResponseCacheDirectiv
 	return false
 }
 
+// CachableStatusCode check if the status code is cache-able based on RFC 7234
 func CachableStatusCode(statusCode int) bool {
 	/*
 		Responses with status codes that are defined as cacheable by default

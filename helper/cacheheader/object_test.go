@@ -52,7 +52,7 @@ func fill(t *testing.T, now time.Time) cacheControl.Object {
 
 		ReqDirectives: ReqDirectives,
 		ReqHeaders:    http.Header{},
-		ReqMethod:     "GET",
+		ReqMethod:     http.MethodGet,
 
 		NowUTC: now,
 	}
@@ -99,7 +99,7 @@ func TestUncachableMethods(t *testing.T) {
 	}
 
 	tc := []methodPair{
-		{"PUT", cacheControl.ReasonRequestMethodPUT},
+		{http.MethodPut, cacheControl.ReasonRequestMethodPUT},
 		{"DELETE", cacheControl.ReasonRequestMethodDELETE},
 		{"CONNECT", cacheControl.ReasonRequestMethodCONNECT},
 		{"OPTIONS", cacheControl.ReasonRequestMethodOPTIONS},
@@ -126,7 +126,7 @@ func TestHEAD(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "HEAD"
+	obj.ReqMethod = http.MethodHead
 	obj.RespLastModifiedHeader = now.Add(time.Hour * -1)
 
 	rv := cacheControl.ObjectResults{}
@@ -146,7 +146,7 @@ func TestHEADLongLastModified(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "HEAD"
+	obj.ReqMethod = http.MethodHead
 	obj.RespLastModifiedHeader = now.Add(time.Hour * -70000)
 
 	rv := cacheControl.ObjectResults{}
@@ -165,7 +165,7 @@ func TestNonCachablePOST(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "POST"
+	obj.ReqMethod = http.MethodPost
 
 	rv := cacheControl.ObjectResults{}
 	cacheControl.CachableObject(&obj, &rv)
@@ -178,7 +178,7 @@ func TestCachablePOSTExpiresHeader(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "POST"
+	obj.ReqMethod = http.MethodPost
 	obj.RespExpiresHeader = now.Add(time.Hour * 1)
 
 	rv := cacheControl.ObjectResults{}
@@ -191,7 +191,7 @@ func TestCachablePOSTSMax(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "POST"
+	obj.ReqMethod = http.MethodPost
 	obj.RespDirectives.SMaxAge = cacheControl.DeltaSeconds(900)
 
 	rv := cacheControl.ObjectResults{}
@@ -204,7 +204,7 @@ func TestNonCachablePOSTSMax(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "POST"
+	obj.ReqMethod = http.MethodPost
 	obj.CacheIsPrivate = true
 	obj.RespDirectives.SMaxAge = cacheControl.DeltaSeconds(900)
 
@@ -219,7 +219,7 @@ func TestCachablePOSTMax(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "POST"
+	obj.ReqMethod = http.MethodPost
 	obj.RespDirectives.MaxAge = cacheControl.DeltaSeconds(9000)
 
 	rv := cacheControl.ObjectResults{}
@@ -232,7 +232,7 @@ func TestPUTs(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "PUT"
+	obj.ReqMethod = http.MethodPut
 
 	rv := cacheControl.ObjectResults{}
 	cacheControl.CachableObject(&obj, &rv)
@@ -245,7 +245,7 @@ func TestPUTWithExpires(t *testing.T) {
 	now := time.Now().UTC()
 
 	obj := fill(t, now)
-	obj.ReqMethod = "PUT"
+	obj.ReqMethod = http.MethodPut
 	obj.RespExpiresHeader = now.Add(time.Hour * 1)
 
 	rv := cacheControl.ObjectResults{}

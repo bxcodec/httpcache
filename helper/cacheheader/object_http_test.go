@@ -40,7 +40,8 @@ func roundTrip(t *testing.T, fnc func(w http.ResponseWriter, r *http.Request)) (
 	require.NoError(t, err)
 
 	_, err = ioutil.ReadAll(res.Body)
-	res.Body.Close()
+	require.NoError(t, err)
+	err = res.Body.Close()
 	require.NoError(t, err)
 	return req, res
 }
@@ -50,7 +51,7 @@ func TestCachableResponsePublic(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "public")
 		w.Header().Set("Last-Modified",
-			time.Now().UTC().Add(time.Duration(time.Hour*-5)).Format(http.TimeFormat))
+			time.Now().UTC().Add(time.Hour*-5).Format(http.TimeFormat))
 		fmt.Fprintln(w, `{}`)
 	})
 
