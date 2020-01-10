@@ -10,4 +10,5 @@ import (
 func TestRoundtrip(t *testing.T) {
 	client := &http.Client{}
 	client.Transport = httpcache.NewRoundtrip(client.Transport, nil)
+
 }
