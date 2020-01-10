@@ -1,3 +1,20 @@
+/**
+ *  Copyright 2015 Paul Querna
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 package cacheheader
 
 import (
@@ -126,7 +143,7 @@ func CachableObject(obj *Object, rv *ObjectResults) {
 	*/
 
 	expires := obj.RespHeaders.Get("Expires") != ""
-	statusCachable := cachableStatusCode(obj.RespStatusCode)
+	statusCachable := CachableStatusCode(obj.RespStatusCode)
 
 	if expires ||
 		obj.RespDirectives.MaxAge != -1 ||
@@ -323,7 +340,8 @@ func hasFreshness(reqDir *RequestCacheDirectives, respDir *ResponseCacheDirectiv
 	return false
 }
 
-func cachableStatusCode(statusCode int) bool {
+// CachableStatusCode check if the status code is cache-able based on RFC 7234
+func CachableStatusCode(statusCode int) bool {
 	/*
 		Responses with status codes that are defined as cacheable by default
 		(e.g., 200, 203, 204, 206, 300, 301, 404, 405, 410, 414, and 501 in

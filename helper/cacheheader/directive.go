@@ -1,3 +1,20 @@
+/**
+ *  Copyright 2015 Paul Querna
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 package cacheheader
 
 import (
@@ -9,7 +26,7 @@ import (
 	"strings"
 )
 
-// TODO(bxcodec): more extensions from here: http://www.iana.org/assignments/http-cache-directives/http-cache-directives.xhtml
+// TODO: more extensions from here: http://www.iana.org/assignments/http-cache-directives/http-cache-directives.xhtml
 
 // Directive errors
 var (
@@ -130,9 +147,9 @@ func parse(value string, cd cacheDirective) error {
 //
 type DeltaSeconds int32
 
-// Parser for delta-seconds, a uint31, more or less:
+// ParseDeltaSeconds is parser for delta-seconds, a uint31, more or less:
 // http://tools.ietf.org/html/rfc7234#section-1.2.1
-func parseDeltaSeconds(v string) (DeltaSeconds, error) {
+func ParseDeltaSeconds(v string) (DeltaSeconds, error) {
 	n, err := strconv.ParseUint(v, 10, 32)
 	if err != nil {
 		if numError, ok := err.(*strconv.NumError); ok {
@@ -257,17 +274,17 @@ func (cd *RequestCacheDirectives) addPair(token string, v string) error {
 
 	switch token {
 	case HeaderMaxAge:
-		cd.MaxAge, err = parseDeltaSeconds(v)
+		cd.MaxAge, err = ParseDeltaSeconds(v)
 		if err != nil {
 			err = ErrMaxAgeDeltaSeconds
 		}
 	case HeaderMaxStale:
-		cd.MaxStale, err = parseDeltaSeconds(v)
+		cd.MaxStale, err = ParseDeltaSeconds(v)
 		if err != nil {
 			err = ErrMaxStaleDeltaSeconds
 		}
 	case HeaderMinFresh:
-		cd.MinFresh, err = parseDeltaSeconds(v)
+		cd.MinFresh, err = ParseDeltaSeconds(v)
 		if err != nil {
 			err = ErrMinFreshDeltaSeconds
 		}
@@ -520,16 +537,16 @@ func (cd *ResponseCacheDirectives) addPair(token string, v string) error {
 	case "proxy-revalidate":
 		err = ErrProxyRevalidateNoArgs
 	case HeaderMaxAge:
-		cd.MaxAge, err = parseDeltaSeconds(v)
+		cd.MaxAge, err = ParseDeltaSeconds(v)
 	case "s-maxage":
-		cd.SMaxAge, err = parseDeltaSeconds(v)
+		cd.SMaxAge, err = ParseDeltaSeconds(v)
 	// Experimental
 	case "immutable":
 		err = ErrImmutableNoArgs
 	case "stale-if-error":
-		cd.StaleIfError, err = parseDeltaSeconds(v)
+		cd.StaleIfError, err = ParseDeltaSeconds(v)
 	case "stale-while-revalidate":
-		cd.StaleWhileRevalidate, err = parseDeltaSeconds(v)
+		cd.StaleWhileRevalidate, err = ParseDeltaSeconds(v)
 	default:
 		// TODO(pquerna): this sucks, making user re-parse, and its technically not 'quoted' like the original,
 		// but this is still easier, just a SplitN on "="

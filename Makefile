@@ -5,7 +5,7 @@ mockery-prepare:
 
 .PHONY: short-test
 short-test:
-	@go test -v --short
+	@go test -v --short ./...
 
 .PHONY: lint-prepare
 lint-prepare:
