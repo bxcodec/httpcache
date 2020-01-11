@@ -26,11 +26,14 @@ const (
 // RoundTrip custom plugable' struct of implementation of the http.RoundTripper
 type RoundTrip struct {
 	DefaultRoundTripper http.RoundTripper
-	CacheInteractor     cache.Interactor
+	CacheInteractor     cache.ICacheInteractor
 }
 
 // NewRoundtrip will create an implementations of cache http roundtripper
-func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.Interactor) http.RoundTripper {
+func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.ICacheInteractor) http.RoundTripper {
+	if cacheActor == nil {
+		log.Fatal("cache interactor is nil")
+	}
 	return &RoundTrip{
 		DefaultRoundTripper: defaultRoundTripper,
 		CacheInteractor:     cacheActor,
@@ -138,7 +141,7 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 	return
 }
 
-func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp *http.Response) (err error) {
+func storeRespToCache(cacheInteractor cache.ICacheInteractor, req *http.Request, resp *http.Response) (err error) {
 	cachedResp := cache.CachedResponse{
 		RequestMethod: req.Method,
 		RequestURI:    req.RequestURI,
@@ -155,7 +158,7 @@ func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp 
 	return
 }
 
-func getCachedResponse(cacheInteractor cache.Interactor, req *http.Request) (resp *http.Response, cachedResp cache.CachedResponse, err error) {
+func getCachedResponse(cacheInteractor cache.ICacheInteractor, req *http.Request) (resp *http.Response, cachedResp cache.CachedResponse, err error) {
 	cachedResp, err = cacheInteractor.Get(getCacheKey(req))
 	if err != nil {
 		return

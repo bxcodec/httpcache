@@ -13,11 +13,11 @@ import (
 // NewWithCustomStorageCache will initiate the httpcache with your defined cache storage
 // To use your own cache storage handler, you need to implement the cache.Interactor interface
 // And pass it to httpcache.
-func NewWithCustomStorageCache(client *http.Client, cacheInteractor cache.Interactor) (err error) {
+func NewWithCustomStorageCache(client *http.Client, cacheInteractor cache.ICacheInteractor) (err error) {
 	return newClient(client, cacheInteractor)
 }
 
-func newClient(client *http.Client, cacheInteractor cache.Interactor) (err error) {
+func newClient(client *http.Client, cacheInteractor cache.ICacheInteractor) (err error) {
 	if client.Transport == nil {
 		client.Transport = http.DefaultTransport
 	}

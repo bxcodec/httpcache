@@ -21,8 +21,8 @@ const (
 	// TODO (bxcodec): Add another storage type
 )
 
-// Interactor ...
-type Interactor interface {
+// ICacheInteractor ...
+type ICacheInteractor interface {
 	Set(key string, value CachedResponse, duration time.Duration) error
 	Get(key string) (CachedResponse, error)
 	Delete(key string) error

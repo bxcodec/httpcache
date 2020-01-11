@@ -12,7 +12,7 @@ type inmemCache struct {
 }
 
 // NewCache will return the inmemory cache handler
-func NewCache(c memcache.Cache) cache.Interactor {
+func NewCache(c memcache.Cache) cache.ICacheInteractor {
 	return &inmemCache{
 		cache: c,
 	}

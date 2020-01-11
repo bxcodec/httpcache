@@ -1,7 +1,19 @@
+ifndef $(GOPATH)
+    GOPATH=$(shell go env GOPATH)
+    export GOPATH
+endif
+
 .PHONY: mockery-prepare
+
+# Install the mockery. This command will install the mockery in the GOPATH/bin folder
 mockery-prepare:
-	@echo "Installing mockery"
-	@go get -u github.com/vektra/mockery
+	 @go get github.com/vektra/mockery/.../
+
+# Use the mockery to generate mock interface
+mockery-gen:
+	@rm -rf ./mocks
+	$(GOPATH)/bin/mockery --dir ./cache/ --name ICacheInteractor
+	 
 
 .PHONY: short-test
 short-test:
