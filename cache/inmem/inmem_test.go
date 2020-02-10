@@ -26,7 +26,7 @@ func TestCacheInMemory(t *testing.T) {
 	}
 
 	// Try to SET item
-	err := cacheObj.Set(testKey, testVal, time.Second*5)
+	err := cacheObj.Set(testKey, testVal)
 	if err != nil {
 		t.Fatalf("expected %v, got %v", nil, err)
 	}

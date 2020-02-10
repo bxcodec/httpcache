@@ -81,7 +81,6 @@ func CachableObject(obj *Object, rv *ObjectResults) {
 		if !hasFreshness(obj.ReqDirectives, obj.RespDirectives, obj.RespHeaders, obj.RespExpiresHeader, obj.CacheIsPrivate) {
 			rv.OutReasons = append(rv.OutReasons, ReasonRequestMethodPOST)
 		}
-
 	case "PUT":
 		rv.OutReasons = append(rv.OutReasons, ReasonRequestMethodPUT)
 

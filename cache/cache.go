@@ -23,7 +23,7 @@ const (
 
 // ICacheInteractor ...
 type ICacheInteractor interface {
-	Set(key string, value CachedResponse, duration time.Duration) error
+	Set(key string, value CachedResponse) error
 	Get(key string) (CachedResponse, error)
 	Delete(key string) error
 	Origin() string

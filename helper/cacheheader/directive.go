@@ -259,7 +259,7 @@ func (cd *RequestCacheDirectives) addToken(token string) error {
 		cd.NoCache = true
 	case HeaderNoStore:
 		cd.NoStore = true
-	case "no-transform":
+	case HeaderNoTransform:
 		cd.NoTransform = true
 	case "only-if-cached":
 		cd.OnlyIfCached = true
@@ -292,7 +292,7 @@ func (cd *RequestCacheDirectives) addPair(token string, v string) error {
 		err = ErrNoCacheNoArgs
 	case HeaderNoStore:
 		err = ErrNoStoreNoArgs
-	case "no-transform":
+	case HeaderNoTransform:
 		err = ErrNoTransformNoArgs
 	case "only-if-cached":
 		err = ErrOnlyIfCachedNoArgs
@@ -467,7 +467,7 @@ func (cd *ResponseCacheDirectives) addToken(token string) error {
 		cd.NoCachePresent = true
 	case HeaderNoStore:
 		cd.NoStore = true
-	case "no-transform":
+	case HeaderNoTransform:
 		cd.NoTransform = true
 	case "public":
 		cd.Public = true
@@ -520,7 +520,7 @@ func (cd *ResponseCacheDirectives) addPair(token string, v string) error {
 		}
 	case HeaderNoStore:
 		err = ErrNoStoreNoArgs
-	case "no-transform":
+	case HeaderNoTransform:
 		err = ErrNoTransformNoArgs
 	case "public":
 		err = ErrPublicNoArgs

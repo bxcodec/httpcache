@@ -93,9 +93,11 @@ func validateTheCacheControl(req *http.Request, resp *http.Response) (validation
 
 // RoundTrip the implementation of http.RoundTripper
 func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-	if allowedFromCache(req.Header) {
+	allowCache := allowedFromCache(req.Header)
+	if allowCache {
 		cachedResp, cachedItem, cachedErr := getCachedResponse(r.CacheInteractor, req)
 		if cachedResp != nil && cachedErr == nil {
+			fmt.Println(">>>>>>>> MASUK")
 			buildTheCachedResponseHeader(cachedResp, cachedItem, r.CacheInteractor.Origin())
 			return cachedResp, cachedErr
 		}
@@ -105,16 +107,8 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 		}
 	}
 
-	err = nil
 	resp, err = r.DefaultRoundTripper.RoundTrip(req)
 	if err != nil {
-		return
-	}
-
-	// Only cache the response of with Success Status
-	if resp.StatusCode >= http.StatusMultipleChoices ||
-		resp.StatusCode < http.StatusOK ||
-		resp.StatusCode == http.StatusNoContent {
 		return
 	}
 
@@ -154,7 +148,7 @@ func storeRespToCache(cacheInteractor cache.ICacheInteractor, req *http.Request,
 	}
 	cachedResp.DumpedResponse = dumpedResponse
 
-	err = cacheInteractor.Set(getCacheKey(req), cachedResp, 0)
+	err = cacheInteractor.Set(getCacheKey(req), cachedResp)
 	return
 }
 

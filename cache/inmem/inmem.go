@@ -1,8 +1,6 @@
 package inmem
 
 import (
-	"time"
-
 	memcache "github.com/bxcodec/gotcha/cache"
 	"github.com/bxcodec/httpcache/cache"
 )
@@ -18,8 +16,7 @@ func NewCache(c memcache.Cache) cache.ICacheInteractor {
 	}
 }
 
-func (i *inmemCache) Set(key string, value cache.CachedResponse, duration time.Duration) (err error) {
-	// TODO(bxcodec): add custom duration here based on user response result on the fly
+func (i *inmemCache) Set(key string, value cache.CachedResponse) (err error) {
 	return i.cache.Set(key, value)
 }
 
