@@ -45,7 +45,7 @@ Short example:
 
 // Inject the HTTP Client with httpcache
 client := &http.Client{}
-err := httpcache.NewWithInmemoryCache(client, time.Second*60)
+_, err := httpcache.NewWithInmemoryCache(client, time.Second*60)
 if err != nil {
   log.Fatal(err)
 }
