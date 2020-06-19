@@ -23,15 +23,18 @@ const (
 	XHacheOrigin = "X-HTTPCache-Origin"
 )
 
-// RoundTrip custom plugable' struct of implementation of the http.RoundTripper
-type RoundTrip struct {
+// CacheHandler custom plugable' struct of implementation of the http.RoundTripper
+type CacheHandler struct {
 	DefaultRoundTripper http.RoundTripper
-	CacheInteractor     cache.Interactor
+	CacheInteractor     cache.ICacheInteractor
 }
 
 // NewRoundtrip will create an implementations of cache http roundtripper
-func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.Interactor) http.RoundTripper {
-	return &RoundTrip{
+func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.ICacheInteractor) *CacheHandler {
+	if cacheActor == nil {
+		log.Fatal("cache interactor is nil")
+	}
+	return &CacheHandler{
 		DefaultRoundTripper: defaultRoundTripper,
 		CacheInteractor:     cacheActor,
 	}
@@ -89,8 +92,9 @@ func validateTheCacheControl(req *http.Request, resp *http.Response) (validation
 }
 
 // RoundTrip the implementation of http.RoundTripper
-func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-	if allowedFromCache(req.Header) {
+func (r *CacheHandler) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+	allowCache := allowedFromCache(req.Header)
+	if allowCache {
 		cachedResp, cachedItem, cachedErr := getCachedResponse(r.CacheInteractor, req)
 		if cachedResp != nil && cachedErr == nil {
 			buildTheCachedResponseHeader(cachedResp, cachedItem, r.CacheInteractor.Origin())
@@ -102,16 +106,8 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 		}
 	}
 
-	err = nil
 	resp, err = r.DefaultRoundTripper.RoundTrip(req)
 	if err != nil {
-		return
-	}
-
-	// Only cache the response of with Success Status
-	if resp.StatusCode >= http.StatusMultipleChoices ||
-		resp.StatusCode < http.StatusOK ||
-		resp.StatusCode == http.StatusNoContent {
 		return
 	}
 
@@ -138,7 +134,7 @@ func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error
 	return
 }
 
-func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp *http.Response) (err error) {
+func storeRespToCache(cacheInteractor cache.ICacheInteractor, req *http.Request, resp *http.Response) (err error) {
 	cachedResp := cache.CachedResponse{
 		RequestMethod: req.Method,
 		RequestURI:    req.RequestURI,
@@ -151,11 +147,11 @@ func storeRespToCache(cacheInteractor cache.Interactor, req *http.Request, resp 
 	}
 	cachedResp.DumpedResponse = dumpedResponse
 
-	err = cacheInteractor.Set(getCacheKey(req), cachedResp, 0)
+	err = cacheInteractor.Set(getCacheKey(req), cachedResp)
 	return
 }
 
-func getCachedResponse(cacheInteractor cache.Interactor, req *http.Request) (resp *http.Response, cachedResp cache.CachedResponse, err error) {
+func getCachedResponse(cacheInteractor cache.ICacheInteractor, req *http.Request) (resp *http.Response, cachedResp cache.CachedResponse, err error) {
 	cachedResp, err = cacheInteractor.Get(getCacheKey(req))
 	if err != nil {
 		return
