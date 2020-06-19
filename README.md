@@ -77,7 +77,7 @@ for i:=0; i< 10; i++ {
 
 ## Inspirations and Thanks
 - [pquerna/cachecontrol](https://github.com/pquerna/cachecontrol) for the Cache-Header Extraction
-- [bxcodec/gothca](https://github.com/bxcodec/gotcha) for in-memory cache. _*Notes: if you find another library that has a better way for inmemm cache, please raise an issue and submit a PR_
+- [bxcodec/gothca](https://github.com/bxcodec/gotcha) for in-memory cache. _*Notes: if you find another library that has a better way for inmemm cache, please raise an issue or submit a PR_
 
 
 ## Contribution
