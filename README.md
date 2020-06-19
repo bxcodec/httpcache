@@ -72,7 +72,7 @@ for i:=0; i< 10; i++ {
 ```
 
 ### TODOs
-- [ ] Add Redis Storage
+- See the [issues](https://github.com/bxcodec/httpcache/issues)
 
 
 ## Inspirations and Thanks
