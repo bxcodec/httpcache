@@ -26,6 +26,7 @@ type ICacheInteractor interface {
 	Set(key string, value CachedResponse) error
 	Get(key string) (CachedResponse, error)
 	Delete(key string) error
+	Flush() error
 	Origin() string
 }
 

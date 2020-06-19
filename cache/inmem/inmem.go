@@ -36,3 +36,7 @@ func (i *inmemCache) Delete(key string) (err error) {
 func (i *inmemCache) Origin() string {
 	return cache.CacheStorageInMemory
 }
+
+func (i *inmemCache) Flush() error {
+	return i.cache.ClearCache()
+}

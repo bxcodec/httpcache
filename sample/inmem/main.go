@@ -12,12 +12,12 @@ import (
 
 func main() {
 	client := &http.Client{}
-	err := httpcache.NewWithInmemoryCache(client, time.Second*60)
+	handler, err := httpcache.NewWithInmemoryCache(client, time.Second*15)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 100; i++ {
 		startTime := time.Now()
 		req, err := http.NewRequest("GET", "https://bxcodec.io", nil)
 		if err != nil {
@@ -29,8 +29,16 @@ func main() {
 		}
 		fmt.Printf("Response time: %v micro-second\n", time.Since(startTime).Microseconds())
 		fmt.Println("Status Code", res.StatusCode)
-		fmt.Println("Header", res.Header)
+		// fmt.Println("Header", res.Header)
 		// printBody(res)
+		time.Sleep(time.Second * 1)
+		fmt.Println("Sequence >>> ", i)
+		if i%5 == 0 {
+			err := handler.CacheInteractor.Flush()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 }
 

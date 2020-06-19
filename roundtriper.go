@@ -23,18 +23,18 @@ const (
 	XHacheOrigin = "X-HTTPCache-Origin"
 )
 
-// RoundTrip custom plugable' struct of implementation of the http.RoundTripper
-type RoundTrip struct {
+// CacheHandler custom plugable' struct of implementation of the http.RoundTripper
+type CacheHandler struct {
 	DefaultRoundTripper http.RoundTripper
 	CacheInteractor     cache.ICacheInteractor
 }
 
 // NewRoundtrip will create an implementations of cache http roundtripper
-func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.ICacheInteractor) http.RoundTripper {
+func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.ICacheInteractor) *CacheHandler {
 	if cacheActor == nil {
 		log.Fatal("cache interactor is nil")
 	}
-	return &RoundTrip{
+	return &CacheHandler{
 		DefaultRoundTripper: defaultRoundTripper,
 		CacheInteractor:     cacheActor,
 	}
@@ -92,12 +92,11 @@ func validateTheCacheControl(req *http.Request, resp *http.Response) (validation
 }
 
 // RoundTrip the implementation of http.RoundTripper
-func (r *RoundTrip) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+func (r *CacheHandler) RoundTrip(req *http.Request) (resp *http.Response, err error) {
 	allowCache := allowedFromCache(req.Header)
 	if allowCache {
 		cachedResp, cachedItem, cachedErr := getCachedResponse(r.CacheInteractor, req)
 		if cachedResp != nil && cachedErr == nil {
-			fmt.Println(">>>>>>>> MASUK")
 			buildTheCachedResponseHeader(cachedResp, cachedItem, r.CacheInteractor.Origin())
 			return cachedResp, cachedErr
 		}

@@ -13,21 +13,22 @@ import (
 // NewWithCustomStorageCache will initiate the httpcache with your defined cache storage
 // To use your own cache storage handler, you need to implement the cache.Interactor interface
 // And pass it to httpcache.
-func NewWithCustomStorageCache(client *http.Client, cacheInteractor cache.ICacheInteractor) (err error) {
+func NewWithCustomStorageCache(client *http.Client, cacheInteractor cache.ICacheInteractor) (cacheHandler *CacheHandler, err error) {
 	return newClient(client, cacheInteractor)
 }
 
-func newClient(client *http.Client, cacheInteractor cache.ICacheInteractor) (err error) {
+func newClient(client *http.Client, cacheInteractor cache.ICacheInteractor) (cachedHandler *CacheHandler, err error) {
 	if client.Transport == nil {
 		client.Transport = http.DefaultTransport
 	}
-	client.Transport = NewRoundtrip(client.Transport, cacheInteractor)
+	cachedHandler = NewRoundtrip(client.Transport, cacheInteractor)
+	client.Transport = cachedHandler
 	return
 }
 
 // NewWithInmemoryCache will create a complete cache-support of HTTP client with using inmemory cache.
 // If the duration not set, the cache will use LFU algorithm
-func NewWithInmemoryCache(client *http.Client, duration ...time.Duration) (err error) {
+func NewWithInmemoryCache(client *http.Client, duration ...time.Duration) (cachedHandler *CacheHandler, err error) {
 	var expiryTime time.Duration
 	if len(duration) > 0 {
 		expiryTime = duration[0]
