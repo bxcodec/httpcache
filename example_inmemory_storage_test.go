@@ -1,8 +1,7 @@
-package main
+package httpcache_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
@@ -10,7 +9,7 @@ import (
 	"github.com/bxcodec/httpcache"
 )
 
-func main() {
+func Example_inMemoryStorageDefault() {
 	client := &http.Client{}
 	handler, err := httpcache.NewWithInmemoryCache(client, time.Second*15)
 	if err != nil {
@@ -29,8 +28,6 @@ func main() {
 		}
 		fmt.Printf("Response time: %v micro-second\n", time.Since(startTime).Microseconds())
 		fmt.Println("Status Code", res.StatusCode)
-		// fmt.Println("Header", res.Header)
-		// printBody(res)
 		time.Sleep(time.Second * 1)
 		fmt.Println("Sequence >>> ", i)
 		if i%5 == 0 {
@@ -40,12 +37,27 @@ func main() {
 			}
 		}
 	}
-}
-
-func printBody(resp *http.Response) {
-	jbyt, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("ResponseBody: \t%s\n", string(jbyt))
+	// Example Output:
+	/*
+		2020/06/21 13:14:51 Cache item's missing failed to retrieve from cache, trying with a live version
+		Response time: 940086 micro-second
+		Status Code 200
+		Sequence >>>  0
+		2020/06/21 13:14:53 Cache item's missing failed to retrieve from cache, trying with a live version
+		Response time: 73679 micro-second
+		Status Code 200
+		Sequence >>>  1
+		Response time: 126 micro-second
+		Status Code 200
+		Sequence >>>  2
+		Response time: 96 micro-second
+		Status Code 200
+		Sequence >>>  3
+		Response time: 102 micro-second
+		Status Code 200
+		Sequence >>>  4
+		Response time: 94 micro-second
+		Status Code 200
+		Sequence >>>  5
+	*/
 }
