@@ -9,6 +9,7 @@ With only less than 10 line of code, you can got a complete implementations of H
 [![Build Status](https://travis-ci.com/bxcodec/httpcache.svg?token=Y64SjWyDK7wXJiFFqV6M&branch=master)](https://travis-ci.com/bxcodec/httpcache)
 [![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/bxcodec/httpcache/blob/master/LICENSE)
 [![GoDoc](https://godoc.org/github.com/bxcodec/httpcache?status.svg)](https://godoc.org/github.com/bxcodec/httpcache)
+[![Go.Dev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/bxcodec/httpcache?tab=doc)
 
 This package is used for caching your http request results from the server. Example how to use can be seen below.
 
@@ -23,7 +24,7 @@ This package is used for caching your http request results from the server. Exam
 ## Support
 
 You can file an [Issue](https://github.com/bxcodec/httpcache/issues/new).
-See documentation in [Godoc](https://godoc.org/github.com/bxcodec/httpcache)
+See documentation in [Godoc](https://godoc.org/github.com/bxcodec/httpcache) or in [go.dev](https://pkg.go.dev/github.com/bxcodec/httpcache?tab=doc)
 
 
 ## Getting Started
@@ -33,11 +34,11 @@ See documentation in [Godoc](https://godoc.org/github.com/bxcodec/httpcache)
 ```shell
 go get -u github.com/bxcodec/httpcache
 ```
-# Example
+# Example with Inmemory Storage
 
 ---
 
-Example how to use more details can be seen in the sample folder: [/sample](/sample)
+Example how to use more details can be seen in the sample folder: [/sample/inmem](/sample/inmem)
 
 Short example:
 
@@ -69,6 +70,20 @@ for i:=0; i< 10; i++ {
   fmt.Println("Status Code", res.StatusCode)
 }
 // See the response time, it will different on each request and will go smaller.
+```
+
+# Example with Custom Storage
+
+You also can use your own custom storage, what you need to do is implement the `cache.ICacheInteractor` interface.
+Example how to use more details can be seen in the sample folder: [/sample/customstorage](/sample/customstorage)
+Example:
+
+```go
+client := &http.Client{}
+_, err := httpcache.NewWithCustomStorageCache(client, mystorage.NewCustomInMemStorage())
+if err != nil {
+	log.Fatal(err)
+}
 ```
 
 ### TODOs
