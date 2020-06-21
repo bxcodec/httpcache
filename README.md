@@ -38,7 +38,7 @@ go get -u github.com/bxcodec/httpcache
 
 ---
 
-Example how to use more details can be seen in the sample folder: [/sample/inmem](/sample/inmem)
+Example how to use more details can be seen in the example file: [./example_inmemory_storage_test.go](./example_inmemory_storage_test.go)
 
 Short example:
 
@@ -75,7 +75,7 @@ for i:=0; i< 10; i++ {
 # Example with Custom Storage
 
 You also can use your own custom storage, what you need to do is implement the `cache.ICacheInteractor` interface.
-Example how to use more details can be seen in the sample folder: [/sample/customstorage](/sample/customstorage)
+Example how to use more details can be seen in the example file: [./example_custom_storage_test.go](./example_custom_storage_test.go)
 Example:
 
 ```go
