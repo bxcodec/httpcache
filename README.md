@@ -80,7 +80,7 @@ Example:
 
 ```go
 client := &http.Client{}
-handler, err := httpcache.NewWithCustomStorageCache(client, mystorage.NewCustomInMemStorage())
+_, err := httpcache.NewWithCustomStorageCache(client, mystorage.NewCustomInMemStorage())
 if err != nil {
 	log.Fatal(err)
 }
