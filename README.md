@@ -76,6 +76,7 @@ for i:=0; i< 10; i++ {
 
 You also can use your own custom storage, what you need to do is implement the `cache.ICacheInteractor` interface.
 Example how to use more details can be seen in the example file: [./example_custom_storage_test.go](./example_custom_storage_test.go)
+
 Example:
 
 ```go
