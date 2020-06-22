@@ -30,8 +30,8 @@ type CacheHandler struct {
 	ComplyRFC           bool
 }
 
-// NewRoundtrip will create an implementations of cache http roundtripper
-func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.ICacheInteractor, rfcCompliance bool) *CacheHandler {
+// NewCacheHandlerRoundtrip will create an implementations of cache http roundtripper
+func NewCacheHandlerRoundtrip(defaultRoundTripper http.RoundTripper, rfcCompliance bool, cacheActor cache.ICacheInteractor) *CacheHandler {
 	if cacheActor == nil {
 		log.Fatal("cache interactor is nil")
 	}
