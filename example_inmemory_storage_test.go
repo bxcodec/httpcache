@@ -11,7 +11,7 @@ import (
 
 func Example_inMemoryStorageDefault() {
 	client := &http.Client{}
-	handler, err := httpcache.NewWithInmemoryCache(client, time.Second*15)
+	handler, err := httpcache.NewWithInmemoryCache(client, true, time.Second*15)
 	if err != nil {
 		log.Fatal(err)
 	}
