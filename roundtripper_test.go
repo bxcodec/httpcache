@@ -20,7 +20,7 @@ func TestSetToCacheRoundtrip(t *testing.T) {
 	mockCacheInteractor.On("Get", mock.AnythingOfType("string")).Once().Return(cachedResponse, errors.New("uknown error"))
 	mockCacheInteractor.On("Set", mock.AnythingOfType("string"), mock.Anything).Once().Return(nil)
 	client := &http.Client{}
-	client.Transport = httpcache.NewRoundtrip(http.DefaultTransport, true, mockCacheInteractor)
+	client.Transport = httpcache.NewCacheHandlerRoundtrip(http.DefaultTransport, true, mockCacheInteractor)
 	// HTTP GET 200
 	jsonResp := []byte(`{"message": "Hello World!"}`)
 	handler := func() (res http.Handler) {
