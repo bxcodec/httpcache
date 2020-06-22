@@ -88,13 +88,15 @@ if err != nil {
 ```
 
 ### About RFC 7234 Compliance
-You can disable/enable the RFC Compliance as you want. If RFC 7234 is too complex for you, you just can disable it by set the RFCComliance parameters to false
+You can disable/enable the RFC Compliance as you want. If RFC 7234 is too complex for you, you can just disable it by set the RFCCompliance parameter to false
 
 ```go
 _, err := httpcache.NewWithInmemoryCache(client, false, time.Second*60)
 // or 
 _, err := httpcache.NewWithCustomStorageCache(client,false, mystorage.NewCustomInMemStorage())
 ```
+
+The downside of disabling the RFC Compliance, **All the response/request will be cached automatically**. Do with caution. 
 
 ### TODOs
 - See the [issues](https://github.com/bxcodec/httpcache/issues)
