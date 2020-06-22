@@ -21,7 +21,7 @@ func newClient(client *http.Client, rfcCompliance bool, cacheInteractor cache.IC
 	if client.Transport == nil {
 		client.Transport = http.DefaultTransport
 	}
-	cachedHandler = NewRoundtrip(client.Transport, cacheInteractor, rfcCompliance)
+	cachedHandler = NewRoundtrip(client.Transport, rfcCompliance, cacheInteractor)
 	client.Transport = cachedHandler
 	return
 }
