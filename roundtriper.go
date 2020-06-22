@@ -115,18 +115,18 @@ func (r *CacheHandler) roundTripRFCCompliance(req *http.Request) (resp *http.Res
 	validationResult, errValidation := validateTheCacheControl(req, resp)
 	if errValidation != nil {
 		log.Printf("Can't validate the response to RFC 7234, plase check. Err: %v\n", errValidation)
-		return // return directly, not sure can stored or not
+		return // return directly, not sure can be stored or not
 	}
 
 	if validationResult.OutErr != nil {
 		log.Printf("Can't validate the response to RFC 7234, plase check. Err: %v\n", validationResult.OutErr)
-		return // return directly, not sure can stored or not
+		return // return directly, not sure can be stored or not
 	}
 
 	// reasons to not to cache
 	if len(validationResult.OutReasons) > 0 {
 		log.Printf("Can't validate the response to RFC 7234, plase check. Err: %v\n", validationResult.OutReasons)
-		return // return directly, not sure can stored or not just use the original result
+		return // return directly, not sure can be stored or not.
 	}
 
 	err = storeRespToCache(r.CacheInteractor, req, resp)
