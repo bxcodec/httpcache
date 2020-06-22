@@ -27,16 +27,18 @@ const (
 type CacheHandler struct {
 	DefaultRoundTripper http.RoundTripper
 	CacheInteractor     cache.ICacheInteractor
+	ComplyRFC           bool
 }
 
 // NewRoundtrip will create an implementations of cache http roundtripper
-func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.ICacheInteractor) *CacheHandler {
+func NewRoundtrip(defaultRoundTripper http.RoundTripper, cacheActor cache.ICacheInteractor, rfcCompliance bool) *CacheHandler {
 	if cacheActor == nil {
 		log.Fatal("cache interactor is nil")
 	}
 	return &CacheHandler{
 		DefaultRoundTripper: defaultRoundTripper,
 		CacheInteractor:     cacheActor,
+		ComplyRFC:           rfcCompliance,
 	}
 }
 
@@ -91,8 +93,7 @@ func validateTheCacheControl(req *http.Request, resp *http.Response) (validation
 	return validationResult, nil
 }
 
-// RoundTrip the implementation of http.RoundTripper
-func (r *CacheHandler) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+func (r *CacheHandler) roundTripRFCCompliance(req *http.Request) (resp *http.Response, err error) {
 	allowCache := allowedFromCache(req.Header)
 	if allowCache {
 		cachedResp, cachedItem, cachedErr := getCachedResponse(r.CacheInteractor, req)
@@ -111,8 +112,8 @@ func (r *CacheHandler) RoundTrip(req *http.Request) (resp *http.Response, err er
 		return
 	}
 
-	validationResult, err := validateTheCacheControl(req, resp)
-	if err != nil {
+	validationResult, errValidation := validateTheCacheControl(req, resp)
+	if errValidation != nil {
 		return
 	}
 
@@ -132,6 +133,40 @@ func (r *CacheHandler) RoundTrip(req *http.Request) (resp *http.Response, err er
 	}
 
 	return
+}
+
+// RoundTrip the implementation of http.RoundTripper
+func (r *CacheHandler) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+	if r.ComplyRFC {
+		return r.roundTripRFCCompliance(req)
+	}
+	cachedResp, cachedItem, cachedErr := getCachedResponse(r.CacheInteractor, req)
+	if cachedResp != nil && cachedErr == nil {
+		buildTheCachedResponseHeader(cachedResp, cachedItem, r.CacheInteractor.Origin())
+		return cachedResp, cachedErr
+	}
+	// if error when getting from cachce, ignore it, re-try a live version
+	if cachedErr != nil {
+		log.Println(cachedErr, "failed to retrieve from cache, trying with a live version")
+	}
+
+	resp, err = r.DefaultRoundTripper.RoundTrip(req)
+	if err != nil {
+		return
+	}
+
+	err = storeRespToCache(r.CacheInteractor, req, resp)
+	if err != nil {
+		log.Printf("Can't store the response to database, plase check. Err: %v\n", err)
+		err = nil // set err back to nil to make the call still success.
+	}
+	return
+}
+
+// RFC7234Compliance used for enable/disable the RFC 7234 compliance
+func (r *CacheHandler) RFC7234Compliance(val bool) *CacheHandler {
+	r.ComplyRFC = val
+	return r
 }
 
 func storeRespToCache(cacheInteractor cache.ICacheInteractor, req *http.Request, resp *http.Response) (err error) {
