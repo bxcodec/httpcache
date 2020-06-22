@@ -46,7 +46,7 @@ Short example:
 
 // Inject the HTTP Client with httpcache
 client := &http.Client{}
-_, err := httpcache.NewWithInmemoryCache(client, time.Second*60)
+_, err := httpcache.NewWithInmemoryCache(client, true, time.Second*60)
 if err != nil {
   log.Fatal(err)
 }
@@ -81,10 +81,19 @@ Example:
 
 ```go
 client := &http.Client{}
-_, err := httpcache.NewWithCustomStorageCache(client, mystorage.NewCustomInMemStorage())
+_, err := httpcache.NewWithCustomStorageCache(client,true, mystorage.NewCustomInMemStorage())
 if err != nil {
 	log.Fatal(err)
 }
+```
+
+### About RFC 7234 Compliance
+You can disable/enable the RFC Compliance as you want. If RFC 7234 is too complex for you, you just can disable it by set the RFCComliance parameters to false
+
+```go
+_, err := httpcache.NewWithInmemoryCache(client, false, time.Second*60)
+// or 
+_, err := httpcache.NewWithCustomStorageCache(client,false, mystorage.NewCustomInMemStorage())
 ```
 
 ### TODOs
