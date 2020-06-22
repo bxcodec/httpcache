@@ -114,6 +114,7 @@ func (r *CacheHandler) roundTripRFCCompliance(req *http.Request) (resp *http.Res
 
 	validationResult, errValidation := validateTheCacheControl(req, resp)
 	if errValidation != nil {
+		err = errValidation
 		return
 	}
 
