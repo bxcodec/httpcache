@@ -33,7 +33,7 @@ type CacheHandler struct {
 // NewCacheHandlerRoundtrip will create an implementations of cache http roundtripper
 func NewCacheHandlerRoundtrip(defaultRoundTripper http.RoundTripper, rfcCompliance bool, cacheActor cache.ICacheInteractor) *CacheHandler {
 	if cacheActor == nil {
-		log.Fatal("cache interactor is nil")
+		log.Fatal("cache storage is not well set")
 	}
 	return &CacheHandler{
 		DefaultRoundTripper: defaultRoundTripper,
