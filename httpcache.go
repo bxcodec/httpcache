@@ -8,6 +8,9 @@ import (
 	inmemcache "github.com/bxcodec/gotcha/cache"
 	"github.com/bxcodec/httpcache/cache"
 	"github.com/bxcodec/httpcache/cache/inmem"
+	rediscache "github.com/bxcodec/httpcache/cache/redis"
+	"github.com/go-redis/redis/v8"
+	"golang.org/x/net/context"
 )
 
 // NewWithCustomStorageCache will initiate the httpcache with your defined cache storage
@@ -39,4 +42,22 @@ func NewWithInmemoryCache(client *http.Client, rfcCompliance bool, duration ...t
 	)
 
 	return newClient(client, rfcCompliance, inmem.NewCache(c))
+}
+
+// NewWithRedisCache will create a complete cache-support of HTTP client with using redis cache.
+// If the duration not set, the cache will use LFU algorithm
+func NewWithRedisCache(client *http.Client, rfcCompliance bool, options *rediscache.CacheOptions,
+	duration ...time.Duration) (cachedHandler *CacheHandler, err error) {
+	var ctx = context.Background()
+	var expiryTime time.Duration
+	if len(duration) > 0 {
+		expiryTime = duration[0]
+	}
+	c := redis.NewClient(&redis.Options{
+		Addr:     options.Addr,
+		Password: options.Password,
+		DB:       options.DB,
+	})
+
+	return newClient(client, rfcCompliance, rediscache.NewCache(ctx, c, expiryTime))
 }
