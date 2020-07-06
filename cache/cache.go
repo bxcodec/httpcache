@@ -12,6 +12,8 @@ var (
 	ErrFailedToSaveToCache = errors.New("Failed to save item")
 	// ErrCacheMissed will throw if an item can't be retrieved (due to invalid, or missing)
 	ErrCacheMissed = errors.New("Cache is missing")
+	// ErrStorageInternal will throw when some internal error in storage occurred
+	ErrStorageInternal = errors.New("Internal error in storage")
 )
 
 // Cache storage type
