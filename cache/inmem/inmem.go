@@ -16,7 +16,8 @@ func NewCache(c memcache.Cache) cache.ICacheInteractor {
 	}
 }
 
-func (i *inmemCache) Set(key string, value cache.CachedResponse) (err error) {
+func (i *inmemCache) Set(key string,
+	value cache.CachedResponse) (err error) { //nolint
 	return i.cache.Set(key, value)
 }
 

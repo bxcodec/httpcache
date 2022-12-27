@@ -1,6 +1,7 @@
 package httpcache_test
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,7 +23,7 @@ func NewCustomInMemStorage() cache.ICacheInteractor {
 	}
 }
 
-func (c customInMemStorage) Set(key string, value cache.CachedResponse) error {
+func (c customInMemStorage) Set(key string, value cache.CachedResponse) error { //nolint
 	c.cacheHandler.Set(key, value, patrickCache.DefaultExpiration)
 	return nil
 }
@@ -61,7 +62,7 @@ func Example_withCustomStorage() {
 
 	for i := 0; i < 100; i++ {
 		startTime := time.Now()
-		req, err := http.NewRequest("GET", "https://bxcodec.io", nil)
+		req, err := http.NewRequestWithContext(context.TODO(), "GET", "https://imantumorang.com", http.NoBody)
 		if err != nil {
 			log.Fatal((err))
 		}
@@ -69,6 +70,7 @@ func Example_withCustomStorage() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		fmt.Printf("Response time: %v micro-second\n", time.Since(startTime).Microseconds())
 		fmt.Println("Status Code", res.StatusCode)
 		time.Sleep(time.Second * 1)
@@ -79,6 +81,7 @@ func Example_withCustomStorage() {
 				log.Fatal(err)
 			}
 		}
+		res.Body.Close()
 	}
 	// Example Output:
 	/*

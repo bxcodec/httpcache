@@ -24,7 +24,7 @@ package cacheheader
 // making them compliant in as many cases as they can.
 type Reason int
 
-//  Reason ENUM code number
+// Reason ENUM code number
 const (
 	// The request method was POST and an Expiration header was not supplied.
 	ReasonRequestMethodPOST Reason = iota
@@ -50,7 +50,8 @@ const (
 	// The request included an Cache-Control: no-store header
 	ReasonRequestNoStore
 
-	// The request included an Authorization header without an explicit Public or Expiration time: http://tools.ietf.org/html/rfc7234#section-3.2
+	// The request included an Authorization header without an explicit Public
+	// or Expiration time: http://tools.ietf.org/html/rfc7234#section-3.2
 	ReasonRequestAuthorizationHeader
 
 	// The response included an Cache-Control: no-store header

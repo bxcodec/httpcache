@@ -7,13 +7,13 @@ import (
 
 var (
 	// ErrInvalidCachedResponse will throw if the cached response is invalid
-	ErrInvalidCachedResponse = errors.New("Cached Response is Invalid")
+	ErrInvalidCachedResponse = errors.New("Cached Response is Invalid") //nolint
 	// ErrFailedToSaveToCache will throw if the item can't be saved to cache
-	ErrFailedToSaveToCache = errors.New("Failed to save item")
+	ErrFailedToSaveToCache = errors.New("Failed to save item") //nolint
 	// ErrCacheMissed will throw if an item can't be retrieved (due to invalid, or missing)
-	ErrCacheMissed = errors.New("Cache is missing")
+	ErrCacheMissed = errors.New("Cache is missing") //nolint
 	// ErrStorageInternal will throw when some internal error in storage occurred
-	ErrStorageInternal = errors.New("Internal error in storage")
+	ErrStorageInternal = errors.New("Internal error in storage") //nolint
 )
 
 // Cache storage type
@@ -23,7 +23,7 @@ const (
 	// TODO (bxcodec): Add another storage type
 )
 
-// ICacheInteractor ...
+// ICacheInteractor is the interface contract for the detail cache functionality
 type ICacheInteractor interface {
 	Set(key string, value CachedResponse) error
 	Get(key string) (CachedResponse, error)

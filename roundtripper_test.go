@@ -1,6 +1,7 @@
 package httpcache_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -36,11 +37,12 @@ func TestSetToCacheRoundtrip(t *testing.T) {
 
 	mockServer := httptest.NewServer(handler)
 	defer mockServer.Close()
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/hello", mockServer.URL), nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, fmt.Sprintf("%s/hello", mockServer.URL), http.NoBody)
 	require.NoError(t, err)
 
 	resp, err := client.Do(req)
 	require.NoError(t, err)
+	defer resp.Body.Close()
 
 	require.Empty(t, resp.Header.Get(httpcache.XHacheOrigin))
 	mockCacheInteractor.AssertExpectations(t)

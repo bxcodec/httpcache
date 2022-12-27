@@ -32,7 +32,7 @@ func NewCache(ctx context.Context, c *redis.Client, exptime time.Duration) cache
 	}
 }
 
-func (i *redisCache) Set(key string, value cache.CachedResponse) (err error) {
+func (i *redisCache) Set(key string, value cache.CachedResponse) (err error) { //nolint
 	valueJSON, _ := json.Marshal(value)
 	set := i.cache.Set(i.ctx, key, string(valueJSON), i.expiryTime*time.Second)
 	if err := set.Err(); err != nil {
