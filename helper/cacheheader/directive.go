@@ -67,7 +67,7 @@ func whitespace(b byte) bool {
 }
 
 func parse(value string, cd cacheDirective) error {
-	var err error = nil
+	var err error
 	i := 0
 
 	for i < len(value) && err == nil {
@@ -88,12 +88,6 @@ func parse(value string, cd cacheDirective) error {
 
 		token := strings.ToLower(value[i:j])
 		tokenHasFields := hasFieldNames(token)
-		/*
-			println("GOT TOKEN:")
-			println("	i -> ", i)
-			println("	j -> ", j)
-			println("	token -> ", token)
-		*/
 
 		if j+1 < len(value) && value[j] == '=' {
 			k := j + 1
@@ -144,7 +138,6 @@ func parse(value string, cd cacheDirective) error {
 // time in seconds: http://tools.ietf.org/html/rfc7234#section-1.2.1
 //
 // When set to -1, this means unset.
-//
 type DeltaSeconds int32
 
 // ParseDeltaSeconds is parser for delta-seconds, a uint31, more or less:
@@ -175,10 +168,10 @@ type cacheDirective interface {
 	addPair(s string, v string) error
 }
 
-// RequestCacheDirectives is representation of possible request directives in a `Cache-Control` header: http://tools.ietf.org/html/rfc7234#section-5.2.1
+// RequestCacheDirectives is representation of possible request directives in
+// a `Cache-Control` header: http://tools.ietf.org/html/rfc7234#section-5.2.1
 //
 // Note: Many fields will be `nil` in practice.
-//
 type RequestCacheDirectives struct {
 
 	// max-age(delta seconds): http://tools.ietf.org/html/rfc7234#section-5.2.1.1
@@ -269,8 +262,8 @@ func (cd *RequestCacheDirectives) addToken(token string) error {
 	return err
 }
 
-func (cd *RequestCacheDirectives) addPair(token string, v string) error {
-	var err error = nil
+func (cd *RequestCacheDirectives) addPair(token, v string) error {
+	var err error
 
 	switch token {
 	case HeaderMaxAge:
@@ -319,10 +312,10 @@ func ParseRequestCacheControl(value string) (*RequestCacheDirectives, error) {
 	return cd, nil
 }
 
-// ResponseCacheDirectives  Representation of possible response directives in a `Cache-Control` header: http://tools.ietf.org/html/rfc7234#section-5.2.2
+// ResponseCacheDirectives  Representation of possible response directives in
+// a `Cache-Control` header: http://tools.ietf.org/html/rfc7234#section-5.2.2
 //
 // Note: Many fields will be `nil` in practice.
-//
 type ResponseCacheDirectives struct {
 
 	// must-revalidate(bool): http://tools.ietf.org/html/rfc7234#section-5.2.2.1
@@ -441,7 +434,7 @@ type ResponseCacheDirectives struct {
 	Extensions []string
 }
 
-//ParseResponseCacheControl will Parses a Cache Control Header from a Response into a set of directives.
+// ParseResponseCacheControl will Parses a Cache Control Header from a Response into a set of directives.
 func ParseResponseCacheControl(value string) (*ResponseCacheDirectives, error) {
 	cd := &ResponseCacheDirectives{
 		MaxAge:  -1,
@@ -471,7 +464,7 @@ func (cd *ResponseCacheDirectives) addToken(token string) error {
 		cd.NoTransform = true
 	case "public":
 		cd.Public = true
-	case "private":
+	case "private": //nolint
 		cd.PrivatePresent = true
 	case "proxy-revalidate":
 		cd.ProxyRevalidate = true
@@ -502,8 +495,8 @@ func hasFieldNames(token string) bool {
 	return false
 }
 
-func (cd *ResponseCacheDirectives) addPair(token string, v string) error {
-	var err error = nil
+func (cd *ResponseCacheDirectives) addPair(token, v string) error {
+	var err error
 
 	switch token {
 	case "must-revalidate":

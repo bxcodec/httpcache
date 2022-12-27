@@ -18,28 +18,29 @@
 package cacheheader_test
 
 import (
-	"github.com/stretchr/testify/require"
-
+	"context"
 	"fmt"
-	cacheControl "github.com/bxcodec/httpcache/helper/cacheheader"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	cacheControl "github.com/bxcodec/httpcache/helper/cacheheader"
+	"github.com/stretchr/testify/require"
 )
 
 func roundTrip(t *testing.T, fnc func(w http.ResponseWriter, r *http.Request)) (*http.Request, *http.Response) {
 	ts := httptest.NewServer(http.HandlerFunc(fnc))
 	defer ts.Close()
 
-	req, err := http.NewRequest("GET", ts.URL, nil)
+	req, err := http.NewRequestWithContext(context.TODO(), "GET", ts.URL, http.NoBody)
 	require.NoError(t, err)
 
 	res, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
 
-	_, err = ioutil.ReadAll(res.Body)
+	_, err = io.ReadAll(res.Body)
 	require.NoError(t, err)
 	err = res.Body.Close()
 	require.NoError(t, err)
@@ -47,7 +48,7 @@ func roundTrip(t *testing.T, fnc func(w http.ResponseWriter, r *http.Request)) (
 }
 
 func TestCachableResponsePublic(t *testing.T) {
-	req, res := roundTrip(t, func(w http.ResponseWriter, r *http.Request) {
+	req, res := roundTrip(t, func(w http.ResponseWriter, r *http.Request) { //nolint
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Cache-Control", "public")
 		w.Header().Set("Last-Modified",
@@ -66,7 +67,7 @@ func TestCachableResponsePublic(t *testing.T) {
 }
 
 func TestCachableResponseNoHeaders(t *testing.T) {
-	req, res := roundTrip(t, func(w http.ResponseWriter, r *http.Request) {
+	req, res := roundTrip(t, func(w http.ResponseWriter, r *http.Request) { //nolint
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintln(w, `{}`)
 	})
@@ -79,7 +80,7 @@ func TestCachableResponseNoHeaders(t *testing.T) {
 }
 
 func TestCachableResponseBadExpires(t *testing.T) {
-	req, res := roundTrip(t, func(w http.ResponseWriter, r *http.Request) {
+	req, res := roundTrip(t, func(w http.ResponseWriter, r *http.Request) { //nolint
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Expires", "-1")
 		fmt.Fprintln(w, `{}`)

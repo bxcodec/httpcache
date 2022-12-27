@@ -14,9 +14,9 @@ func isSeparator(c byte) bool {
 	return false
 }
 
-func isCtl(c byte) bool { return (0 <= c && c <= 31) || c == 127 }
+func isCtl(c byte) bool { return (c <= 31) || c == 127 }
 
-func isChar(c byte) bool { return 0 <= c && c <= 127 }
+func isChar(c byte) bool { return c <= 127 } //nolint
 
 func isAnyText(c byte) bool { return !isCtl(c) }
 

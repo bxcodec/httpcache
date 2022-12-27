@@ -155,7 +155,7 @@ func CachableObject(obj *Object, rv *ObjectResults) {
 	}
 }
 
-var twentyFourHours = 24 * time.Hour
+var twentyFourHoursDuration = 24 * time.Hour
 
 const debug = false
 
@@ -207,8 +207,8 @@ func ExpirationObject(obj *Object, rv *ObjectResults) {
 		since := obj.RespLastModifiedHeader.Sub(obj.NowUTC)
 		since = time.Duration(float64(since) * -0.1)
 
-		if since > twentyFourHours {
-			expiresTime = obj.NowUTC.Add(twentyFourHours)
+		if since > twentyFourHoursDuration {
+			expiresTime = obj.NowUTC.Add(twentyFourHoursDuration)
 		} else {
 			expiresTime = obj.NowUTC.Add(since)
 		}
@@ -217,7 +217,7 @@ func ExpirationObject(obj *Object, rv *ObjectResults) {
 			println("Now UTC: ", obj.NowUTC.String())
 			println("Last-Modified: ", obj.RespLastModifiedHeader.String())
 			println("Since: ", since.String())
-			println("TwentyFourHours: ", twentyFourHours.String())
+			println("TwentyFourHours: ", twentyFourHoursDuration.String())
 			println("Expiration: ", expiresTime.String())
 		}
 	}
@@ -230,8 +230,8 @@ func UsingRequestResponse(req *http.Request,
 	statusCode int,
 	respHeaders http.Header,
 	privateCache bool) ([]Reason, time.Time, error) {
-	reasons, time, _, _, err := UsingRequestResponseWithObject(req, statusCode, respHeaders, privateCache)
-	return reasons, time, err
+	reasons, expirationTime, _, _, err := UsingRequestResponseWithObject(req, statusCode, respHeaders, privateCache)
+	return reasons, expirationTime, err
 }
 
 // UsingRequestResponseWithObject will Evaluate cachability based on an HTTP request, and parts of the response.
@@ -243,7 +243,7 @@ func UsingRequestResponseWithObject(req *http.Request,
 	var reqHeaders http.Header
 	var reqMethod string
 
-	var reqDir *RequestCacheDirectives = nil
+	var reqDir *RequestCacheDirectives
 	respDir, err := ParseResponseCacheControl(respHeaders.Get("Cache-Control"))
 	if err != nil {
 		return nil, time.Time{}, nil, nil, err
@@ -320,7 +320,8 @@ func UsingRequestResponseWithObject(req *http.Request,
 }
 
 // calculate if a freshness directive is present: http://tools.ietf.org/html/rfc7234#section-4.2.1
-func hasFreshness(reqDir *RequestCacheDirectives, respDir *ResponseCacheDirectives, respHeaders http.Header, respExpires time.Time, privateCache bool) bool {
+func hasFreshness(reqDir *RequestCacheDirectives, respDir *ResponseCacheDirectives,
+	respHeaders http.Header, respExpires time.Time, privateCache bool) bool {
 	// ignore for now
 	_ = reqDir
 
@@ -350,27 +351,12 @@ func CachableStatusCode(statusCode int) bool {
 		cacheable by default.
 	*/
 	switch statusCode {
-	case 200:
-		return true
-	case 203:
-		return true
-	case 204:
-		return true
-	case 206:
-		return true
-	case 300:
-		return true
-	case 301:
-		return true
-	case 404:
-		return true
-	case 405:
-		return true
-	case 410:
-		return true
-	case 414:
-		return true
-	case 501:
+	case http.StatusOK, http.StatusNonAuthoritativeInfo,
+		http.StatusNoContent, http.StatusPartialContent,
+		http.StatusMultipleChoices, http.StatusMovedPermanently,
+		http.StatusNotFound, http.StatusMethodNotAllowed,
+		http.StatusGone, http.StatusRequestURITooLong,
+		http.StatusNotImplemented:
 		return true
 	default:
 		return false

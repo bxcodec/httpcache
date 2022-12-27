@@ -132,10 +132,9 @@ func (r *CacheHandler) roundTripRFCCompliance(req *http.Request) (resp *http.Res
 	err = storeRespToCache(r.CacheInteractor, req, resp)
 	if err != nil {
 		log.Printf("Can't store the response to database, plase check. Err: %v\n", err)
-		err = nil // set err back to nil to make the call still success.
 	}
-
-	return
+	// return err back to nil to make the call still success.
+	return resp, nil
 }
 
 // RoundTrip the implementation of http.RoundTripper
@@ -189,7 +188,8 @@ func storeRespToCache(cacheInteractor cache.ICacheInteractor, req *http.Request,
 	return
 }
 
-func getCachedResponse(cacheInteractor cache.ICacheInteractor, req *http.Request) (resp *http.Response, cachedResp cache.CachedResponse, err error) {
+func getCachedResponse(cacheInteractor cache.ICacheInteractor, req *http.Request) (
+	resp *http.Response, cachedResp cache.CachedResponse, err error) {
 	cachedResp, err = cacheInteractor.Get(getCacheKey(req))
 	if err != nil {
 		return
@@ -228,7 +228,8 @@ func getCacheKey(req *http.Request) (key string) {
 }
 
 // buildTheCachedResponse will finalize the response header
-func buildTheCachedResponseHeader(resp *http.Response, cachedResp cache.CachedResponse, origin string) {
+func buildTheCachedResponseHeader(resp *http.Response,
+	cachedResp cache.CachedResponse, origin string) { //nolint
 	resp.Header.Add("Expires", cachedResp.CachedTime.String())
 	resp.Header.Add(XFromHache, "true")
 	resp.Header.Add(XHacheOrigin, origin)

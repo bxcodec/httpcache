@@ -1,6 +1,7 @@
 package httpcache_test
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -81,7 +82,7 @@ func Example_redisStorage() {
 func processCachedRequest(client *http.Client, handler *httpcache.CacheHandler) {
 	for i := 0; i < 100; i++ {
 		startTime := time.Now()
-		req, err := http.NewRequest("GET", "https://bxcodec.io", nil)
+		req, err := http.NewRequestWithContext(context.TODO(), "GET", "https://imantumorang.com", http.NoBody)
 		if err != nil {
 			log.Fatal((err))
 		}
@@ -89,6 +90,7 @@ func processCachedRequest(client *http.Client, handler *httpcache.CacheHandler) 
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		fmt.Printf("Response time: %v micro-second\n", time.Since(startTime).Microseconds())
 		fmt.Println("Status Code", res.StatusCode)
 		time.Sleep(time.Second * 1)
@@ -99,5 +101,6 @@ func processCachedRequest(client *http.Client, handler *httpcache.CacheHandler) 
 				log.Fatal(err)
 			}
 		}
+		res.Body.Close()
 	}
 }

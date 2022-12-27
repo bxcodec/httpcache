@@ -82,7 +82,7 @@ func (w Warning) HeaderString(agent string, date time.Time) string {
 		// TODO(pquerna): this doesn't escape agent if it contains bad things.
 		agent = `"` + agent + `"`
 	}
-	return fmt.Sprintf(`%d %s "%s" %s`, w, agent, w.String(), date.Format(http.TimeFormat))
+	return fmt.Sprintf(`%d %s %q %s`, w, agent, w.String(), date.Format(http.TimeFormat))
 }
 
 func (w Warning) String() string {

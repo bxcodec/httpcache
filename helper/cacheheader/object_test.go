@@ -20,10 +20,11 @@ package cacheheader_test
 import (
 	"github.com/stretchr/testify/require"
 
-	cacheControl "github.com/bxcodec/httpcache/helper/cacheheader"
 	"net/http"
 	"testing"
 	"time"
+
+	cacheControl "github.com/bxcodec/httpcache/helper/cacheheader"
 )
 
 func TestCachableStatusCode(t *testing.T) {
@@ -140,7 +141,7 @@ func TestHEAD(t *testing.T) {
 	require.False(t, rv.OutExpirationTime.IsZero())
 }
 
-const twentyFourHours = time.Hour * 24
+const twentyFourHourDuration = time.Hour * 24
 
 func TestHEADLongLastModified(t *testing.T) {
 	now := time.Now().UTC()
@@ -158,7 +159,7 @@ func TestHEADLongLastModified(t *testing.T) {
 	require.NoError(t, rv.OutErr)
 	require.Len(t, rv.OutReasons, 0)
 	require.False(t, rv.OutExpirationTime.IsZero())
-	require.WithinDuration(t, now.Add(twentyFourHours), rv.OutExpirationTime, time.Second*60)
+	require.WithinDuration(t, now.Add(twentyFourHourDuration), rv.OutExpirationTime, time.Second*60)
 }
 
 func TestNonCachablePOST(t *testing.T) {

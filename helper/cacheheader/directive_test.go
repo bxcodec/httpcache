@@ -19,10 +19,11 @@ package cacheheader_test
 
 import (
 	"fmt"
-	cacheControl "github.com/bxcodec/httpcache/helper/cacheheader"
-	"github.com/stretchr/testify/require"
 	"math"
 	"testing"
+
+	cacheControl "github.com/bxcodec/httpcache/helper/cacheheader"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMaxAge(t *testing.T) {

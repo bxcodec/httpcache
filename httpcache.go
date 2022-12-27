@@ -16,11 +16,13 @@ import (
 // NewWithCustomStorageCache will initiate the httpcache with your defined cache storage
 // To use your own cache storage handler, you need to implement the cache.Interactor interface
 // And pass it to httpcache.
-func NewWithCustomStorageCache(client *http.Client, rfcCompliance bool, cacheInteractor cache.ICacheInteractor) (cacheHandler *CacheHandler, err error) {
+func NewWithCustomStorageCache(client *http.Client, rfcCompliance bool,
+	cacheInteractor cache.ICacheInteractor) (cacheHandler *CacheHandler, err error) {
 	return newClient(client, rfcCompliance, cacheInteractor)
 }
 
-func newClient(client *http.Client, rfcCompliance bool, cacheInteractor cache.ICacheInteractor) (cachedHandler *CacheHandler, err error) {
+func newClient(client *http.Client, rfcCompliance bool,
+	cacheInteractor cache.ICacheInteractor) (cachedHandler *CacheHandler, err error) {
 	if client.Transport == nil {
 		client.Transport = http.DefaultTransport
 	}
@@ -28,6 +30,10 @@ func newClient(client *http.Client, rfcCompliance bool, cacheInteractor cache.IC
 	client.Transport = cachedHandler
 	return
 }
+
+const (
+	MaxSizeCacheItem = 100
+)
 
 // NewWithInmemoryCache will create a complete cache-support of HTTP client with using inmemory cache.
 // If the duration not set, the cache will use LFU algorithm
@@ -38,7 +44,7 @@ func NewWithInmemoryCache(client *http.Client, rfcCompliance bool, duration ...t
 	}
 	c := gotcha.New(
 		gotcha.NewOption().SetAlgorithm(inmemcache.LRUAlgorithm).
-			SetExpiryTime(expiryTime).SetMaxSizeItem(100),
+			SetExpiryTime(expiryTime).SetMaxSizeItem(MaxSizeCacheItem),
 	)
 
 	return newClient(client, rfcCompliance, inmem.NewCache(c))
