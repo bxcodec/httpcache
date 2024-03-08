@@ -1,4 +1,7 @@
-# httpcache, inject-able HTTP cache in Golang
+# [DEPRECATED] httpcache, inject-able HTTP cache in Golang
+
+> Hi all, this library is no longer maintained. I don't see any usecase when to use this. Caching logic is a critical and complex problem. There are a lot of caching solutions that you can try, including this httpcache.
+> But, as systems grow, httpcache is really not relevant/important. Thanks for the support and contributions so far. You can find me at https://imantumorang.com if you later need a similar library that we can collaborate on together.
 
 **Howdy there!!!**
 
