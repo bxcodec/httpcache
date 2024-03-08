@@ -8,7 +8,7 @@ require (
 	github.com/go-redis/redis/v8 v8.0.0-beta.5
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/stretchr/testify v1.5.1
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.17.0
 )
 
 require (
