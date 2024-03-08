@@ -114,24 +114,24 @@ func (r *CacheHandler) roundTripRFCCompliance(req *http.Request) (resp *http.Res
 
 	validationResult, errValidation := validateTheCacheControl(req, resp)
 	if errValidation != nil {
-		log.Printf("Can't validate the response to RFC 7234, plase check. Err: %v\n", errValidation)
+		log.Printf("Can't validate the response to RFC 7234, please check. Err: %v\n", errValidation)
 		return // return directly, not sure can be stored or not
 	}
 
 	if validationResult.OutErr != nil {
-		log.Printf("Can't validate the response to RFC 7234, plase check. Err: %v\n", validationResult.OutErr)
+		log.Printf("Can't validate the response to RFC 7234, please check. Err: %v\n", validationResult.OutErr)
 		return // return directly, not sure can be stored or not
 	}
 
 	// reasons to not to cache
 	if len(validationResult.OutReasons) > 0 {
-		log.Printf("Can't validate the response to RFC 7234, plase check. Err: %v\n", validationResult.OutReasons)
+		log.Printf("Can't validate the response to RFC 7234, please check. Err: %v\n", validationResult.OutReasons)
 		return // return directly, not sure can be stored or not.
 	}
 
 	err = storeRespToCache(r.CacheInteractor, req, resp)
 	if err != nil {
-		log.Printf("Can't store the response to database, plase check. Err: %v\n", err)
+		log.Printf("Can't store the response to database, please check. Err: %v\n", err)
 	}
 	// return err back to nil to make the call still success.
 	return resp, nil
@@ -159,7 +159,7 @@ func (r *CacheHandler) RoundTrip(req *http.Request) (resp *http.Response, err er
 
 	err = storeRespToCache(r.CacheInteractor, req, resp)
 	if err != nil {
-		log.Printf("Can't store the response to database, plase check. Err: %v\n", err)
+		log.Printf("Can't store the response to database, please check. Err: %v\n", err)
 		err = nil // set err back to nil to make the call still success.
 	}
 	return
