@@ -219,7 +219,7 @@ func getCachedResponse(cacheInteractor cache.ICacheInteractor, req *http.Request
 }
 
 func getCacheKey(req *http.Request) (key string) {
-	key = fmt.Sprintf("%s %s", req.Method, req.RequestURI)
+	key = fmt.Sprintf("%s %s", req.Method, req.URL)
 	if (strings.ToLower(req.Header.Get(HeaderCacheControl)) == "private") &&
 		req.Header.Get(HeaderAuthorization) != "" {
 		key = fmt.Sprintf("%s %s", key, req.Header.Get(HeaderAuthorization))
